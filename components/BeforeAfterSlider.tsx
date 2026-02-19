@@ -89,10 +89,10 @@ export default function BeforeAfterSlider({
         draggable={false}
       />
 
-      {/* Before image (clipped) */}
+      {/* Before image (full size, clipped from the right) */}
       <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ width: `${position}%` }}
+        className="absolute inset-0"
+        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
       >
         <Image
           src={beforeImage}
@@ -100,7 +100,6 @@ export default function BeforeAfterSlider({
           fill
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 50vw"
-          style={{ minWidth: containerRef.current ? `${containerRef.current.offsetWidth}px` : "100%" }}
           draggable={false}
         />
       </div>
@@ -110,10 +109,10 @@ export default function BeforeAfterSlider({
         className="absolute top-0 bottom-0 w-0.5 bg-accent z-10"
         style={{ left: `${position}%`, transform: "translateX(-50%)" }}
       >
-        {/* Handle */}
+        {/* Handle — left/right arrows for horizontal slider */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-accent rounded-full flex items-center justify-center shadow-lg shadow-black/40 border-2 border-white/20">
           <svg className="w-5 h-5 text-primary-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7M9 19l7-7-7-7" />
           </svg>
         </div>
       </div>

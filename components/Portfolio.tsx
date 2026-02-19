@@ -20,27 +20,27 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       }`}
     >
       {/* Image or Before/After Slider */}
-      <div className={`relative aspect-[4/3] lg:aspect-auto lg:min-h-[420px] overflow-hidden ${isReversed ? "lg:order-2" : ""}`}>
-        {hasBeforeAfter ? (
+      {hasBeforeAfter ? (
+        <div className={`${isReversed ? "lg:order-2" : ""}`}>
           <BeforeAfterSlider
             beforeImage={project.before_image_url}
             afterImage={project.after_image_url}
-            className="absolute inset-0"
+            className="aspect-[4/3] lg:aspect-auto lg:h-full lg:min-h-[420px]"
           />
-        ) : (
-          <>
-            <Image
-              src={project.image_url}
-              alt={project.title}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-            {/* Atmospheric vignette */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className={`relative aspect-[4/3] lg:aspect-auto lg:min-h-[420px] overflow-hidden ${isReversed ? "lg:order-2" : ""}`}>
+          <Image
+            src={project.image_url}
+            alt={project.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
+          {/* Atmospheric vignette */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
+        </div>
+      )}
 
       {/* Content */}
       <div className={`flex flex-col justify-center p-8 md:p-12 lg:p-16 bg-surface ${isReversed ? "lg:order-1" : ""}`}>
