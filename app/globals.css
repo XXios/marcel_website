@@ -1,40 +1,30 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --background-alt: #F8F7F4;
-  --foreground: #2D3436;
-  --foreground-muted: #636E72;
-  --primary: #2D3436;
-  --primary-dark: #1A1F20;
-  --accent: #D4A843;
-  --accent-hover: #C49A35;
-  --accent-light: #F5ECD7;
-  --border: #E2E0DC;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-background-alt: var(--background-alt);
-  --color-foreground: var(--foreground);
-  --color-foreground-muted: var(--foreground-muted);
-  --color-primary: var(--primary);
-  --color-primary-dark: var(--primary-dark);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-light: var(--accent-light);
-  --color-border: var(--border);
+  --color-background: #ffffff;
+  --color-background-alt: #F8F7F4;
+  --color-foreground: #2D3436;
+  --color-foreground-muted: #636E72;
+  --color-primary: #2D3436;
+  --color-primary-dark: #1A1F20;
+  --color-accent: #D4A843;
+  --color-accent-hover: #C49A35;
+  --color-accent-light: #F5ECD7;
+  --color-border: #E2E0DC;
   --font-sans: var(--font-montserrat);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+html {
+  color-scheme: light only;
+  scroll-behavior: smooth;
 }
 
-html {
-  scroll-behavior: smooth;
+body {
+  background: #ffffff;
+  color: #2D3436;
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom scrollbar */
@@ -43,20 +33,20 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background-alt);
+  background: #F8F7F4;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--foreground-muted);
+  background: #636E72;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: #2D3436;
 }
 
 /* Selection color */
 ::selection {
-  background: var(--accent-light);
-  color: var(--primary);
+  background: #F5ECD7;
+  color: #2D3436;
 }
