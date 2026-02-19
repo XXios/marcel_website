@@ -1,15 +1,26 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
 import type { ContactInfo } from "@/lib/types";
 
 const navLinks = [
   { label: "Leistungen", href: "#leistungen" },
   { label: "Projekte", href: "#portfolio" },
-  { label: "Über mich", href: "#ueber-mich" },
+  { label: "Galerie", href: "/galerie" },
+  { label: "\u00dcber mich", href: "#ueber-mich" },
   { label: "Kundenstimmen", href: "#kundenstimmen" },
   { label: "Kontakt", href: "#kontakt" },
 ];
+
+function resolveHref(href: string, pathname: string): string {
+  // Anchor links: on homepage use as-is, on other pages prefix with /
+  if (href.startsWith("#")) {
+    return pathname === "/" ? href : `/${href}`;
+  }
+  return href;
+}
 
 interface HeaderProps {
   contact: ContactInfo;
@@ -18,6 +29,7 @@ interface HeaderProps {
 export default function Header({ contact }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,10 +64,14 @@ export default function Header({ contact }: HeaderProps) {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-20">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-accent rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                <span className="text-primary-dark font-bold text-sm sm:text-lg">V</span>
-              </div>
+            <a href="/" className="flex items-center gap-2 sm:gap-3 group">
+              <Image
+                src="/images/logo.png"
+                alt="Vogel Maler & Gestalter Logo"
+                width={40}
+                height={40}
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg group-hover:scale-105 transition-transform"
+              />
               <div className="flex flex-col leading-tight">
                 <span className="font-bold text-sm sm:text-lg tracking-tight text-foreground">
                   Vogel
@@ -70,9 +86,13 @@ export default function Header({ contact }: HeaderProps) {
             <nav className="hidden lg:flex items-center gap-8">
               {navLinks.map((link) => (
                 <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm font-medium transition-colors text-foreground-muted hover:text-accent"
+                  key={link.label}
+                  href={resolveHref(link.href, pathname)}
+                  className={`text-sm font-medium transition-colors hover:text-accent ${
+                    link.href === "/galerie" && pathname === "/galerie"
+                      ? "text-accent"
+                      : "text-foreground-muted"
+                  }`}
                 >
                   {link.label}
                 </a>
@@ -91,7 +111,7 @@ export default function Header({ contact }: HeaderProps) {
                 <span>{contact.phone}</span>
               </a>
               <a
-                href="#kontakt"
+                href={pathname === "/" ? "#kontakt" : "/#kontakt"}
                 className="bg-accent text-primary-dark px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-accent-hover transition-all shadow-sm hover:shadow-md"
               >
                 Projekt anfragen
@@ -134,10 +154,14 @@ export default function Header({ contact }: HeaderProps) {
         >
           {/* Top bar with logo + close */}
           <div className="flex items-center justify-between px-4 sm:px-6 h-14 sm:h-20 flex-shrink-0">
-            <a href="#" onClick={closeMenu} className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-accent rounded-lg flex items-center justify-center">
-                <span className="text-primary-dark font-bold text-sm sm:text-lg">V</span>
-              </div>
+            <a href="/" onClick={closeMenu} className="flex items-center gap-2 sm:gap-3">
+              <Image
+                src="/images/logo.png"
+                alt="Vogel Maler & Gestalter Logo"
+                width={40}
+                height={40}
+                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg"
+              />
               <div className="flex flex-col leading-tight">
                 <span className="font-bold text-sm sm:text-lg tracking-tight text-foreground">
                   Vogel
@@ -162,10 +186,14 @@ export default function Header({ contact }: HeaderProps) {
           <nav className="flex-1 flex flex-col items-center justify-center gap-2 px-6">
             {navLinks.map((link, i) => (
               <a
-                key={link.href}
-                href={link.href}
+                key={link.label}
+                href={resolveHref(link.href, pathname)}
                 onClick={closeMenu}
-                className="text-foreground-muted hover:text-accent text-2xl sm:text-3xl font-heading font-semibold py-3 transition-colors"
+                className={`text-2xl sm:text-3xl font-heading font-semibold py-3 transition-colors ${
+                  link.href === "/galerie" && pathname === "/galerie"
+                    ? "text-accent"
+                    : "text-foreground-muted hover:text-accent"
+                }`}
                 style={{ transitionDelay: `${(i + 1) * 50}ms` }}
               >
                 {link.label}
@@ -185,7 +213,7 @@ export default function Header({ contact }: HeaderProps) {
               {contact.phone}
             </a>
             <a
-              href="#kontakt"
+              href={pathname === "/" ? "#kontakt" : "/#kontakt"}
               onClick={closeMenu}
               className="block w-full text-center bg-accent text-primary-dark px-6 py-4 rounded-xl text-lg font-semibold hover:bg-accent-hover transition-all shadow-lg"
             >

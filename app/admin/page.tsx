@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, type FormEvent, type DragEvent } from "react";
-import type { ContactInfo, Service, Project, Testimonial, AboutInfo } from "@/lib/types";
+import type { ContactInfo, Service, Project, Testimonial, AboutInfo, GalleryItem, SiteSettings } from "@/lib/types";
 import { ICONS } from "@/lib/icons";
 
 // ─── Dark admin design tokens (inline) ───
@@ -45,14 +45,16 @@ async function apiFetch<T>(
 
 // ─── Tabs ───
 
-type Tab = "contact" | "services" | "projects" | "testimonials" | "about";
+type Tab = "contact" | "services" | "projects" | "testimonials" | "about" | "gallery" | "settings";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "contact", label: "Kontaktdaten" },
   { key: "services", label: "Leistungen" },
   { key: "projects", label: "Projekte" },
   { key: "testimonials", label: "Kundenstimmen" },
-  { key: "about", label: "Über mich" },
+  { key: "about", label: "\u00dcber mich" },
+  { key: "gallery", label: "Galerie" },
+  { key: "settings", label: "Einstellungen" },
 ];
 
 // ─── Shared class strings ───
@@ -281,6 +283,7 @@ function ContactTab({ password }: { password: string }) {
       {field("Telefon (Roh, für tel:-Link)", "phone_raw")}
       {field("E-Mail", "email")}
       {field("WhatsApp-Nummer (ohne +)", "whatsapp")}
+      {field("Instagram-Benutzername (ohne @)", "instagram")}
       {field("Adresse", "address")}
       {field("Stadt / Region", "city")}
       {field("Öffnungszeiten", "hours")}
@@ -543,6 +546,8 @@ function ProjectsTab({ password }: { password: string }) {
         description: "",
         tags: [],
         image_url: "",
+        before_image_url: "",
+        after_image_url: "",
         sort_order: projects.length,
         created_at: "",
       };
@@ -654,6 +659,46 @@ function ProjectsTab({ password }: { password: string }) {
             placeholder="Oder Bild-URL manuell eingeben"
             className={`${inputClasses} mt-2`}
           />
+        </div>
+
+        {/* Before/After comparison images */}
+        <div className="p-4 rounded-lg border border-[#2A2A2A] bg-[#111] space-y-4">
+          <div>
+            <p className="text-sm font-medium text-[#F0ECE6] mb-1">Vorher / Nachher Vergleich</p>
+            <p className="text-xs text-[#6B6660]">Optional: Laden Sie ein Vorher- und Nachher-Bild hoch, um einen interaktiven Slider auf der Website anzuzeigen.</p>
+          </div>
+          <div>
+            <label className={labelClasses}>Vorher-Bild</label>
+            <ImageUpload
+              password={password}
+              folder="projects"
+              currentUrl={editing.before_image_url}
+              onUploaded={(url) => setEditing({ ...editing, before_image_url: url })}
+            />
+            <input
+              type="text"
+              value={editing.before_image_url}
+              onChange={(e) => setEditing({ ...editing, before_image_url: e.target.value })}
+              placeholder="Vorher-Bild URL"
+              className={`${inputClasses} mt-2`}
+            />
+          </div>
+          <div>
+            <label className={labelClasses}>Nachher-Bild</label>
+            <ImageUpload
+              password={password}
+              folder="projects"
+              currentUrl={editing.after_image_url}
+              onUploaded={(url) => setEditing({ ...editing, after_image_url: url })}
+            />
+            <input
+              type="text"
+              value={editing.after_image_url}
+              onChange={(e) => setEditing({ ...editing, after_image_url: e.target.value })}
+              placeholder="Nachher-Bild URL"
+              className={`${inputClasses} mt-2`}
+            />
+          </div>
         </div>
         <div>
           <label className={labelClasses}>Sortierung</label>
@@ -1029,6 +1074,261 @@ function AboutTab({ password }: { password: string }) {
   );
 }
 
+// ─── Gallery Manager ───
+
+function GalleryTab({ password }: { password: string }) {
+  const [items, setItems] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<GalleryItem | null>(null);
+  const [message, setMessage] = useState("");
+
+  const loadData = useCallback(async () => {
+    try {
+      const data = await apiFetch<GalleryItem[]>("/api/admin/gallery", password);
+      setItems(data);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [password]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const handleSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editing) return;
+    setMessage("");
+    try {
+      if (editing.id) {
+        await apiFetch("/api/admin/gallery", password, {
+          method: "PUT",
+          body: JSON.stringify(editing),
+        });
+      } else {
+        await apiFetch("/api/admin/gallery", password, {
+          method: "POST",
+          body: JSON.stringify(editing),
+        });
+      }
+      setEditing(null);
+      await loadData();
+      setMessage("Gespeichert!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Wirklich l\u00f6schen?")) return;
+    try {
+      await apiFetch("/api/admin/gallery", password, {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+      });
+      await loadData();
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    }
+  };
+
+  const newItem = (): GalleryItem => ({
+    id: "",
+    title: "",
+    description: "",
+    image_url: "",
+    sort_order: items.length,
+    created_at: "",
+  });
+
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
+
+  if (editing) {
+    return (
+      <form onSubmit={handleSave} className="space-y-4 max-w-lg">
+        <h3 className="font-semibold text-[#F0ECE6]">
+          {editing.id ? "Galerie-Bild bearbeiten" : "Neues Galerie-Bild"}
+        </h3>
+        <div>
+          <label className={labelClasses}>Titel</label>
+          <input
+            type="text"
+            required
+            value={editing.title}
+            onChange={(e) => setEditing({ ...editing, title: e.target.value })}
+            className={inputClasses}
+            placeholder="z.B. Spachteltechnik Wohnzimmer"
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>Kurzbeschreibung</label>
+          <textarea
+            rows={2}
+            value={editing.description}
+            onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+            className={inputClasses}
+            placeholder="Optionale kurze Beschreibung"
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>Bild</label>
+          <ImageUpload
+            password={password}
+            folder="gallery"
+            currentUrl={editing.image_url}
+            onUploaded={(url) => setEditing({ ...editing, image_url: url })}
+          />
+          <input
+            type="text"
+            value={editing.image_url}
+            onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
+            placeholder="Oder Bild-URL manuell eingeben"
+            className={`${inputClasses} mt-2`}
+          />
+        </div>
+        <div>
+          <label className={labelClasses}>Sortierung</label>
+          <input
+            type="number"
+            value={editing.sort_order}
+            onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })}
+            className={`w-24 ${inputClasses}`}
+          />
+        </div>
+        <div className="flex items-center gap-3 pt-2">
+          <button type="submit" className={btnPrimary}>Speichern</button>
+          <button type="button" onClick={() => setEditing(null)} className={btnSecondary}>Abbrechen</button>
+        </div>
+        {message && (
+          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
+            {message}
+          </p>
+        )}
+      </form>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-[#F0ECE6]">{items.length} Galerie-Bilder</h3>
+        <button onClick={() => setEditing(newItem())} className={btnPrimary}>
+          + Neues Bild
+        </button>
+      </div>
+      {message && (
+        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
+          {message}
+        </p>
+      )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {items.map((item) => (
+          <div key={item.id} className={`${cardClasses} p-0 overflow-hidden`}>
+            {item.image_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={item.image_url} alt={item.title} className="w-full aspect-square object-cover" />
+            ) : (
+              <div className="w-full aspect-square bg-[#111] flex items-center justify-center">
+                <span className="text-[#6B6660] text-xs">Kein Bild</span>
+              </div>
+            )}
+            <div className="p-3">
+              <p className="font-medium text-[#F0ECE6] text-sm truncate">{item.title}</p>
+              {item.description && (
+                <p className="text-xs text-[#6B6660] truncate mt-0.5">{item.description}</p>
+              )}
+              <div className="flex gap-2 mt-2">
+                <button onClick={() => setEditing(item)} className={btnOutlineSmall}>Bearbeiten</button>
+                <button onClick={() => handleDelete(item.id)} className={btnDangerSmall}>L\u00f6schen</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Settings Tab (Einstellungen) ───
+
+function SettingsTab({ password }: { password: string }) {
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const loadData = useCallback(async () => {
+    try {
+      const data = await apiFetch<SiteSettings>("/api/admin/settings", password);
+      setSettings(data);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [password]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!settings) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const updated = await apiFetch<SiteSettings>("/api/admin/settings", password, {
+        method: "PUT",
+        body: JSON.stringify(settings),
+      });
+      setSettings(updated);
+      setMessage("Gespeichert!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
+  if (!settings) return <p className="text-red-400">Einstellungen konnten nicht geladen werden.</p>;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
+      <div>
+        <h3 className="font-semibold text-[#F0ECE6] mb-1">Hero-Hintergrundbild</h3>
+        <p className="text-xs text-[#6B6660] mb-3">
+          Das gro\u00dfe Hintergrundbild auf der Startseite. Empfohlen: mindestens 1920x1080px.
+        </p>
+        <ImageUpload
+          password={password}
+          folder="hero"
+          currentUrl={settings.hero_image_url}
+          onUploaded={(url) => setSettings({ ...settings, hero_image_url: url })}
+        />
+        <input
+          type="text"
+          value={settings.hero_image_url}
+          onChange={(e) => setSettings({ ...settings, hero_image_url: e.target.value })}
+          placeholder="Bild-URL oder /images/hero-bg.jpg"
+          className={`${inputClasses} mt-2`}
+        />
+      </div>
+      <div className="flex items-center gap-3 pt-2">
+        <button type="submit" disabled={saving} className={btnPrimary}>
+          {saving ? "Speichern..." : "Speichern"}
+        </button>
+        {message && (
+          <span className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
+            {message}
+          </span>
+        )}
+      </div>
+    </form>
+  );
+}
+
 // ─── Password Gate ───
 
 function PasswordGate({ onAuth }: { onAuth: (password: string) => void }) {
@@ -1185,6 +1485,8 @@ export default function AdminPage() {
         {activeTab === "projects" && <ProjectsTab password={password} />}
         {activeTab === "testimonials" && <TestimonialsTab password={password} />}
         {activeTab === "about" && <AboutTab password={password} />}
+        {activeTab === "gallery" && <GalleryTab password={password} />}
+        {activeTab === "settings" && <SettingsTab password={password} />}
       </div>
     </div>
   );

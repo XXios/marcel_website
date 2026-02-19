@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ContactInfo } from "@/lib/types";
 
 interface FooterProps {
@@ -15,9 +16,13 @@ export default function Footer({ contact }: FooterProps) {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-                <span className="text-primary-dark font-bold text-lg">V</span>
-              </div>
+              <Image
+                src="/images/logo.png"
+                alt="Vogel Maler & Gestalter Logo"
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-lg"
+              />
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-foreground tracking-tight leading-tight">
                   Vogel
@@ -41,11 +46,12 @@ export default function Footer({ contact }: FooterProps) {
             </h4>
             <ul className="space-y-3">
               {[
-                { label: "Leistungen", href: "#leistungen" },
-                { label: "Projekte", href: "#portfolio" },
-                { label: "Über mich", href: "#ueber-mich" },
-                { label: "Kundenstimmen", href: "#kundenstimmen" },
-                { label: "Kontakt", href: "#kontakt" },
+                { label: "Leistungen", href: "/#leistungen" },
+                { label: "Projekte", href: "/#portfolio" },
+                { label: "Galerie", href: "/galerie" },
+                { label: "\u00dcber mich", href: "/#ueber-mich" },
+                { label: "Kundenstimmen", href: "/#kundenstimmen" },
+                { label: "Kontakt", href: "/#kontakt" },
               ].map((link) => (
                 <li key={link.href}>
                   <a

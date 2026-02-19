@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = getAdminClient();
   const { data, error } = await supabase
-    .from("contact_info")
+    .from("site_settings")
     .select("*")
     .eq("id", 1)
     .single();
@@ -36,9 +36,8 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const supabase = getAdminClient();
 
-    // Only allow updating specific fields
-    const updates: Record<string, string | boolean> = {};
-    const allowedFields = ["phone", "phone_raw", "email", "whatsapp", "instagram", "address", "city", "hours", "on_vacation"];
+    const updates: Record<string, unknown> = {};
+    const allowedFields = ["hero_image_url"];
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         updates[field] = body[field];
@@ -46,7 +45,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from("contact_info")
+      .from("site_settings")
       .update(updates)
       .eq("id", 1)
       .select()
@@ -58,6 +57,6 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch {
-    return NextResponse.json({ error: "Ungültige Anfrage" }, { status: 400 });
+    return NextResponse.json({ error: "Ung\u00fcltige Anfrage" }, { status: 400 });
   }
 }

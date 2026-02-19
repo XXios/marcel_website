@@ -1,13 +1,19 @@
 import Image from "next/image";
 import Button from "./ui/Button";
 
-export default function Hero() {
+interface HeroProps {
+  heroImageUrl?: string;
+}
+
+export default function Hero({ heroImageUrl }: HeroProps) {
+  const bgImage = heroImageUrl || "/images/hero-bg.jpg";
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero-bg.jpg"
+          src={bgImage}
           alt="Exklusive Wandgestaltung"
           fill
           className="object-cover"

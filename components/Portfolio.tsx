@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import SectionHeading from "./ui/SectionHeading";
+import BeforeAfterSlider from "./BeforeAfterSlider";
 import type { Project } from "@/lib/types";
 
 interface PortfolioProps {
@@ -10,6 +11,7 @@ interface PortfolioProps {
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const isReversed = index % 2 !== 0;
+  const hasBeforeAfter = project.before_image_url && project.after_image_url;
 
   return (
     <div
@@ -17,17 +19,27 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         isReversed ? "lg:direction-rtl" : ""
       }`}
     >
-      {/* Image */}
+      {/* Image or Before/After Slider */}
       <div className={`relative aspect-[4/3] lg:aspect-auto lg:min-h-[420px] overflow-hidden ${isReversed ? "lg:order-2" : ""}`}>
-        <Image
-          src={project.image_url}
-          alt={project.title}
-          fill
-          className="object-cover"
-          sizes="(max-width: 1024px) 100vw, 50vw"
-        />
-        {/* Atmospheric vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
+        {hasBeforeAfter ? (
+          <BeforeAfterSlider
+            beforeImage={project.before_image_url}
+            afterImage={project.after_image_url}
+            className="absolute inset-0"
+          />
+        ) : (
+          <>
+            <Image
+              src={project.image_url}
+              alt={project.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+            {/* Atmospheric vignette */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
+          </>
+        )}
       </div>
 
       {/* Content */}

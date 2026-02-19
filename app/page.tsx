@@ -7,24 +7,25 @@ import Testimonials from "@/components/Testimonials";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { getContactInfo, getServices, getProjects, getTestimonials, getAboutInfo } from "@/lib/data";
+import { getContactInfo, getServices, getProjects, getTestimonials, getAboutInfo, getSiteSettings } from "@/lib/data";
 
 export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 export default async function Home() {
-  const [contact, services, projects, testimonials, aboutInfo] = await Promise.all([
+  const [contact, services, projects, testimonials, aboutInfo, siteSettings] = await Promise.all([
     getContactInfo(),
     getServices(),
     getProjects(),
     getTestimonials(),
     getAboutInfo(),
+    getSiteSettings(),
   ]);
 
   return (
     <>
       <Header contact={contact} />
       <main>
-        <Hero />
+        <Hero heroImageUrl={siteSettings.hero_image_url} />
         <Services services={services} />
         <Portfolio projects={projects} />
         <About about={aboutInfo} />

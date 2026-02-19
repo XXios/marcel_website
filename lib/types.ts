@@ -6,6 +6,7 @@ export interface ContactInfo {
   phone_raw: string;
   email: string;
   whatsapp: string;
+  instagram: string;
   address: string;
   city: string;
   hours: string;
@@ -21,6 +22,12 @@ export interface AboutInfo {
   paragraph_2: string;
   paragraph_3: string;
   image_url: string;
+  updated_at: string;
+}
+
+export interface SiteSettings {
+  id: number;
+  hero_image_url: string;
   updated_at: string;
 }
 
@@ -41,6 +48,8 @@ export interface Project {
   description: string;
   tags: string[];
   image_url: string;
+  before_image_url: string;
+  after_image_url: string;
   sort_order: number;
   created_at: string;
 }
@@ -51,6 +60,15 @@ export interface Testimonial {
   name: string;
   location: string;
   rating: number;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  description: string;
+  image_url: string;
   sort_order: number;
   created_at: string;
 }

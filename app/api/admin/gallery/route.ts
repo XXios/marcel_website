@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = getAdminClient();
   const { data, error } = await supabase
-    .from("projects")
+    .from("gallery_items")
     .select("*")
     .order("sort_order", { ascending: true });
 
@@ -36,15 +36,11 @@ export async function POST(request: NextRequest) {
     const supabase = getAdminClient();
 
     const { data, error } = await supabase
-      .from("projects")
+      .from("gallery_items")
       .insert({
         title: body.title,
-        location: body.location || "",
         description: body.description || "",
-        tags: body.tags || [],
         image_url: body.image_url || "",
-        before_image_url: body.before_image_url || "",
-        after_image_url: body.after_image_url || "",
         sort_order: body.sort_order ?? 0,
       })
       .select()
@@ -56,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 });
   } catch {
-    return NextResponse.json({ error: "Ungültige Anfrage" }, { status: 400 });
+    return NextResponse.json({ error: "Ung\u00fcltige Anfrage" }, { status: 400 });
   }
 }
 
@@ -71,7 +67,7 @@ export async function PUT(request: NextRequest) {
 
     const supabase = getAdminClient();
     const updates: Record<string, unknown> = {};
-    const allowedFields = ["title", "location", "description", "tags", "image_url", "before_image_url", "after_image_url", "sort_order"];
+    const allowedFields = ["title", "description", "image_url", "sort_order"];
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         updates[field] = body[field];
@@ -79,7 +75,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from("projects")
+      .from("gallery_items")
       .update(updates)
       .eq("id", body.id)
       .select()
@@ -91,7 +87,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch {
-    return NextResponse.json({ error: "Ungültige Anfrage" }, { status: 400 });
+    return NextResponse.json({ error: "Ung\u00fcltige Anfrage" }, { status: 400 });
   }
 }
 
@@ -106,7 +102,7 @@ export async function DELETE(request: NextRequest) {
 
     const supabase = getAdminClient();
     const { error } = await supabase
-      .from("projects")
+      .from("gallery_items")
       .delete()
       .eq("id", id);
 
@@ -116,6 +112,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch {
-    return NextResponse.json({ error: "Ungültige Anfrage" }, { status: 400 });
+    return NextResponse.json({ error: "Ung\u00fcltige Anfrage" }, { status: 400 });
   }
 }
