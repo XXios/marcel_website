@@ -1,8 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, type FormEvent, type DragEvent } from "react";
-import type { ContactInfo, Service, Project, Testimonial } from "@/lib/types";
+import type { ContactInfo, Service, Project, Testimonial, AboutInfo } from "@/lib/types";
 import { ICONS } from "@/lib/icons";
+
+// ─── Dark admin design tokens (inline) ───
+// bg-page:       #0F0F0F (page background)
+// bg-card:       #1A1A1A (cards, sections)
+// bg-input:      #111111 (input fields)
+// border:        #2A2A2A
+// border-focus:  amber-500
+// text-primary:  #F0ECE6 (headings, strong text)
+// text-secondary:#9A958D (labels, muted)
+// text-dim:      #6B6660 (placeholders, hints)
+// accent:        amber-500 / amber-600
 
 // ─── API helpers ───
 
@@ -34,14 +45,30 @@ async function apiFetch<T>(
 
 // ─── Tabs ───
 
-type Tab = "contact" | "services" | "projects" | "testimonials";
+type Tab = "contact" | "services" | "projects" | "testimonials" | "about";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "contact", label: "Kontaktdaten" },
   { key: "services", label: "Leistungen" },
   { key: "projects", label: "Projekte" },
   { key: "testimonials", label: "Kundenstimmen" },
+  { key: "about", label: "Über mich" },
 ];
+
+// ─── Shared class strings ───
+
+const inputClasses =
+  "w-full px-3 py-2 bg-[#111] border border-[#2A2A2A] rounded-lg text-[#F0ECE6] placeholder-[#6B6660] focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm";
+const labelClasses = "block text-sm font-medium text-[#9A958D] mb-1";
+const cardClasses = "p-4 bg-[#1A1A1A] rounded-lg border border-[#2A2A2A]";
+const btnPrimary =
+  "px-5 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors";
+const btnSecondary =
+  "px-5 py-2 bg-[#2A2A2A] text-[#9A958D] rounded-lg text-sm font-medium hover:bg-[#333] transition-colors";
+const btnOutlineSmall =
+  "px-3 py-1.5 text-xs bg-[#1A1A1A] text-[#9A958D] border border-[#2A2A2A] rounded-lg hover:bg-[#222] hover:text-[#F0ECE6] transition-colors";
+const btnDangerSmall =
+  "px-3 py-1.5 text-xs bg-red-950/40 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-950/60 transition-colors";
 
 // ─── Image Upload Component ───
 
@@ -105,7 +132,9 @@ function ImageUpload({
     <div className="space-y-2">
       <div
         className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
-          dragOver ? "border-amber-500 bg-amber-50" : "border-gray-300 hover:border-gray-400"
+          dragOver
+            ? "border-amber-500 bg-amber-500/10"
+            : "border-[#2A2A2A] hover:border-[#444]"
         }`}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
@@ -113,9 +142,9 @@ function ImageUpload({
         onClick={() => fileInputRef.current?.click()}
       >
         {uploading ? (
-          <p className="text-sm text-gray-500">Wird hochgeladen...</p>
+          <p className="text-sm text-[#6B6660]">Wird hochgeladen...</p>
         ) : (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-[#6B6660]">
             Bild hierher ziehen oder klicken zum Auswählen
           </p>
         )}
@@ -127,14 +156,14 @@ function ImageUpload({
           className="hidden"
         />
       </div>
-      {error && <p className="text-red-600 text-xs">{error}</p>}
+      {error && <p className="text-red-400 text-xs">{error}</p>}
       {currentUrl && (
         <div className="mt-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={currentUrl}
             alt="Vorschau"
-            className="w-full max-w-[200px] h-auto rounded-lg border"
+            className="w-full max-w-[200px] h-auto rounded-lg border border-[#2A2A2A]"
           />
         </div>
       )}
@@ -160,28 +189,28 @@ function IconPicker({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-lg hover:border-gray-400 transition-colors w-full"
+        className="flex items-center gap-2 px-3 py-2 bg-[#111] border border-[#2A2A2A] rounded-lg hover:border-[#444] transition-colors w-full"
       >
-        <span className="text-gray-700">{current.svg("w-5 h-5")}</span>
-        <span className="text-sm text-gray-700 flex-1 text-left">{current.label}</span>
-        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+        <span className="text-[#9A958D]">{current.svg("w-5 h-5")}</span>
+        <span className="text-sm text-[#F0ECE6] flex-1 text-left">{current.label}</span>
+        <svg className="w-4 h-4 text-[#6B6660]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
         </svg>
       </button>
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 p-2 grid grid-cols-4 gap-1">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg shadow-lg z-20 p-2 grid grid-cols-4 gap-1">
           {ICONS.map((icon) => (
             <button
               key={icon.key}
               type="button"
               onClick={() => { onChange(icon.key); setOpen(false); }}
-              className={`flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-gray-100 transition-colors ${
-                icon.key === value ? "bg-amber-50 ring-2 ring-amber-500" : ""
+              className={`flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-[#222] transition-colors ${
+                icon.key === value ? "bg-amber-500/10 ring-2 ring-amber-500" : ""
               }`}
               title={icon.label}
             >
-              <span className="text-gray-700">{icon.svg("w-5 h-5")}</span>
-              <span className="text-[10px] text-gray-500 truncate w-full text-center">{icon.label}</span>
+              <span className="text-[#9A958D]">{icon.svg("w-5 h-5")}</span>
+              <span className="text-[10px] text-[#6B6660] truncate w-full text-center">{icon.label}</span>
             </button>
           ))}
         </div>
@@ -231,17 +260,17 @@ function ContactTab({ password }: { password: string }) {
     }
   };
 
-  if (loading) return <p className="text-gray-500">Laden...</p>;
-  if (!contact) return <p className="text-red-600">Kontaktdaten konnten nicht geladen werden.</p>;
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
+  if (!contact) return <p className="text-red-400">Kontaktdaten konnten nicht geladen werden.</p>;
 
   const field = (label: string, key: keyof ContactInfo) => (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className={labelClasses}>{label}</label>
       <input
         type="text"
         value={String(contact[key] || "")}
         onChange={(e) => setContact({ ...contact, [key]: e.target.value })}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+        className={inputClasses}
       />
     </div>
   );
@@ -257,14 +286,14 @@ function ContactTab({ password }: { password: string }) {
       {field("Öffnungszeiten", "hours")}
 
       {/* Vacation / no new orders toggle */}
-      <div className="flex items-start gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50">
+      <div className="flex items-start gap-4 p-4 rounded-xl border border-[#2A2A2A] bg-[#1A1A1A]">
         <button
           type="button"
           role="switch"
           aria-checked={contact.on_vacation}
           onClick={() => setContact({ ...contact, on_vacation: !contact.on_vacation })}
-          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 ${
-            contact.on_vacation ? "bg-red-600" : "bg-gray-300"
+          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-[#0F0F0F] ${
+            contact.on_vacation ? "bg-red-600" : "bg-[#333]"
           }`}
         >
           <span
@@ -274,15 +303,15 @@ function ContactTab({ password }: { password: string }) {
           />
         </button>
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900">
+          <p className="text-sm font-medium text-[#F0ECE6]">
             Keine neuen Aufträge annehmen
           </p>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-[#6B6660] mt-0.5">
             Wenn aktiv, wird auf der Website ein Hinweis angezeigt, dass derzeit keine neuen Aufträge angenommen werden. Besucher können Sie dennoch kontaktieren.
           </p>
           {contact.on_vacation && (
-            <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">
-              <span className="w-1.5 h-1.5 bg-red-600 rounded-full" />
+            <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 bg-red-950/40 text-red-400 text-xs font-medium rounded-full">
+              <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
               Hinweis ist aktiv
             </span>
           )}
@@ -290,15 +319,11 @@ function ContactTab({ password }: { password: string }) {
       </div>
 
       <div className="flex items-center gap-3 pt-2">
-        <button
-          type="submit"
-          disabled={saving}
-          className="px-5 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 disabled:opacity-50 transition-colors"
-        >
+        <button type="submit" disabled={saving} className={btnPrimary}>
           {saving ? "Speichern..." : "Speichern"}
         </button>
         {message && (
-          <span className={`text-sm ${message.startsWith("Fehler") ? "text-red-600" : "text-green-600"}`}>
+          <span className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
             {message}
           </span>
         )}
@@ -376,43 +401,43 @@ function ServicesTab({ password }: { password: string }) {
     created_at: "",
   });
 
-  if (loading) return <p className="text-gray-500">Laden...</p>;
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
 
   if (editing) {
     return (
       <form onSubmit={handleSave} className="space-y-4 max-w-lg">
-        <h3 className="font-semibold text-gray-900">
+        <h3 className="font-semibold text-[#F0ECE6]">
           {editing.id ? "Leistung bearbeiten" : "Neue Leistung"}
         </h3>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Titel</label>
+          <label className={labelClasses}>Titel</label>
           <input
             type="text"
             required
             value={editing.title}
             onChange={(e) => setEditing({ ...editing, title: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={inputClasses}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
+          <label className={labelClasses}>Beschreibung</label>
           <textarea
             required
             rows={3}
             value={editing.description}
             onChange={(e) => setEditing({ ...editing, description: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={inputClasses}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
+          <label className={labelClasses}>Icon</label>
           <IconPicker
             value={editing.icon_name}
             onChange={(key) => setEditing({ ...editing, icon_name: key })}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Bild</label>
+          <label className={labelClasses}>Bild</label>
           <ImageUpload
             password={password}
             folder="services"
@@ -424,35 +449,24 @@ function ServicesTab({ password }: { password: string }) {
             value={editing.image_url}
             onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
             placeholder="Oder Bild-URL manuell eingeben"
-            className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={`${inputClasses} mt-2`}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sortierung</label>
+          <label className={labelClasses}>Sortierung</label>
           <input
             type="number"
             value={editing.sort_order}
             onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })}
-            className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={`w-24 ${inputClasses}`}
           />
         </div>
         <div className="flex items-center gap-3 pt-2">
-          <button
-            type="submit"
-            className="px-5 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
-          >
-            Speichern
-          </button>
-          <button
-            type="button"
-            onClick={() => setEditing(null)}
-            className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
-          >
-            Abbrechen
-          </button>
+          <button type="submit" className={btnPrimary}>Speichern</button>
+          <button type="button" onClick={() => setEditing(null)} className={btnSecondary}>Abbrechen</button>
         </div>
         {message && (
-          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-600" : "text-green-600"}`}>
+          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
             {message}
           </p>
         )}
@@ -463,43 +477,30 @@ function ServicesTab({ password }: { password: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">{services.length} Leistungen</h3>
-        <button
-          onClick={() => setEditing(newService())}
-          className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
-        >
+        <h3 className="font-semibold text-[#F0ECE6]">{services.length} Leistungen</h3>
+        <button onClick={() => setEditing(newService())} className={btnPrimary}>
           + Neue Leistung
         </button>
       </div>
       {message && (
-        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-600" : "text-green-600"}`}>
+        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
           {message}
         </p>
       )}
       <div className="space-y-2">
         {services.map((s) => (
-          <div key={s.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div key={s.id} className={`flex items-center gap-4 ${cardClasses}`}>
             {s.image_url && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={s.image_url} alt={s.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 truncate">{s.title}</p>
-              <p className="text-sm text-gray-500 truncate">{s.description}</p>
+              <p className="font-medium text-[#F0ECE6] truncate">{s.title}</p>
+              <p className="text-sm text-[#6B6660] truncate">{s.description}</p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
-              <button
-                onClick={() => setEditing(s)}
-                className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Bearbeiten
-              </button>
-              <button
-                onClick={() => handleDelete(s.id)}
-                className="px-3 py-1.5 text-xs bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-              >
-                Löschen
-              </button>
+              <button onClick={() => setEditing(s)} className={btnOutlineSmall}>Bearbeiten</button>
+              <button onClick={() => handleDelete(s.id)} className={btnDangerSmall}>Löschen</button>
             </div>
           </div>
         ))}
@@ -592,54 +593,54 @@ function ProjectsTab({ password }: { password: string }) {
     }
   };
 
-  if (loading) return <p className="text-gray-500">Laden...</p>;
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
 
   if (editing) {
     return (
       <form onSubmit={handleSave} className="space-y-4 max-w-lg">
-        <h3 className="font-semibold text-gray-900">
+        <h3 className="font-semibold text-[#F0ECE6]">
           {editing.id ? "Projekt bearbeiten" : "Neues Projekt"}
         </h3>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Titel</label>
+          <label className={labelClasses}>Titel</label>
           <input
             type="text"
             required
             value={editing.title}
             onChange={(e) => setEditing({ ...editing, title: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={inputClasses}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Standort</label>
+          <label className={labelClasses}>Standort</label>
           <input
             type="text"
             value={editing.location}
             onChange={(e) => setEditing({ ...editing, location: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={inputClasses}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
+          <label className={labelClasses}>Beschreibung</label>
           <textarea
             rows={3}
             value={editing.description}
             onChange={(e) => setEditing({ ...editing, description: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={inputClasses}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tags (kommagetrennt)</label>
+          <label className={labelClasses}>Tags (kommagetrennt)</label>
           <input
             type="text"
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
             placeholder="z.B. Innenanstrich, Farbberatung"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={inputClasses}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Bild</label>
+          <label className={labelClasses}>Bild</label>
           <ImageUpload
             password={password}
             folder="projects"
@@ -651,35 +652,24 @@ function ProjectsTab({ password }: { password: string }) {
             value={editing.image_url}
             onChange={(e) => setEditing({ ...editing, image_url: e.target.value })}
             placeholder="Oder Bild-URL manuell eingeben"
-            className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={`${inputClasses} mt-2`}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sortierung</label>
+          <label className={labelClasses}>Sortierung</label>
           <input
             type="number"
             value={editing.sort_order}
             onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })}
-            className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={`w-24 ${inputClasses}`}
           />
         </div>
         <div className="flex items-center gap-3 pt-2">
-          <button
-            type="submit"
-            className="px-5 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
-          >
-            Speichern
-          </button>
-          <button
-            type="button"
-            onClick={() => setEditing(null)}
-            className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
-          >
-            Abbrechen
-          </button>
+          <button type="submit" className={btnPrimary}>Speichern</button>
+          <button type="button" onClick={() => setEditing(null)} className={btnSecondary}>Abbrechen</button>
         </div>
         {message && (
-          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-600" : "text-green-600"}`}>
+          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
             {message}
           </p>
         )}
@@ -690,43 +680,30 @@ function ProjectsTab({ password }: { password: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">{projects.length} Projekte</h3>
-        <button
-          onClick={() => startEditing(null)}
-          className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
-        >
+        <h3 className="font-semibold text-[#F0ECE6]">{projects.length} Projekte</h3>
+        <button onClick={() => startEditing(null)} className={btnPrimary}>
           + Neues Projekt
         </button>
       </div>
       {message && (
-        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-600" : "text-green-600"}`}>
+        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
           {message}
         </p>
       )}
       <div className="space-y-2">
         {projects.map((p) => (
-          <div key={p.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div key={p.id} className={`flex items-center gap-4 ${cardClasses}`}>
             {p.image_url && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={p.image_url} alt={p.title} className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
             )}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 truncate">{p.title}</p>
-              <p className="text-sm text-gray-500">{p.location}</p>
+              <p className="font-medium text-[#F0ECE6] truncate">{p.title}</p>
+              <p className="text-sm text-[#6B6660]">{p.location}</p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
-              <button
-                onClick={() => startEditing(p)}
-                className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Bearbeiten
-              </button>
-              <button
-                onClick={() => handleDelete(p.id)}
-                className="px-3 py-1.5 text-xs bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-              >
-                Löschen
-              </button>
+              <button onClick={() => startEditing(p)} className={btnOutlineSmall}>Bearbeiten</button>
+              <button onClick={() => handleDelete(p.id)} className={btnDangerSmall}>Löschen</button>
             </div>
           </div>
         ))}
@@ -804,47 +781,47 @@ function TestimonialsTab({ password }: { password: string }) {
     created_at: "",
   });
 
-  if (loading) return <p className="text-gray-500">Laden...</p>;
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
 
   if (editing) {
     return (
       <form onSubmit={handleSave} className="space-y-4 max-w-lg">
-        <h3 className="font-semibold text-gray-900">
+        <h3 className="font-semibold text-[#F0ECE6]">
           {editing.id ? "Kundenstimme bearbeiten" : "Neue Kundenstimme"}
         </h3>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Zitat</label>
+          <label className={labelClasses}>Zitat</label>
           <textarea
             required
             rows={4}
             value={editing.quote}
             onChange={(e) => setEditing({ ...editing, quote: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={inputClasses}
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className={labelClasses}>Name</label>
             <input
               type="text"
               required
               value={editing.name}
               onChange={(e) => setEditing({ ...editing, name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+              className={inputClasses}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ort</label>
+            <label className={labelClasses}>Ort</label>
             <input
               type="text"
               value={editing.location}
               onChange={(e) => setEditing({ ...editing, location: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+              className={inputClasses}
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Bewertung</label>
+          <label className={labelClasses}>Bewertung</label>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -854,7 +831,7 @@ function TestimonialsTab({ password }: { password: string }) {
                 className="p-1"
               >
                 <svg
-                  className={`w-6 h-6 ${star <= editing.rating ? "text-amber-500" : "text-gray-300"}`}
+                  className={`w-6 h-6 ${star <= editing.rating ? "text-amber-500" : "text-[#333]"}`}
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -865,31 +842,20 @@ function TestimonialsTab({ password }: { password: string }) {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sortierung</label>
+          <label className={labelClasses}>Sortierung</label>
           <input
             type="number"
             value={editing.sort_order}
             onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })}
-            className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+            className={`w-24 ${inputClasses}`}
           />
         </div>
         <div className="flex items-center gap-3 pt-2">
-          <button
-            type="submit"
-            className="px-5 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
-          >
-            Speichern
-          </button>
-          <button
-            type="button"
-            onClick={() => setEditing(null)}
-            className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
-          >
-            Abbrechen
-          </button>
+          <button type="submit" className={btnPrimary}>Speichern</button>
+          <button type="button" onClick={() => setEditing(null)} className={btnSecondary}>Abbrechen</button>
         </div>
         {message && (
-          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-600" : "text-green-600"}`}>
+          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
             {message}
           </p>
         )}
@@ -900,29 +866,26 @@ function TestimonialsTab({ password }: { password: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">{testimonials.length} Kundenstimmen</h3>
-        <button
-          onClick={() => setEditing(newTestimonial())}
-          className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
-        >
+        <h3 className="font-semibold text-[#F0ECE6]">{testimonials.length} Kundenstimmen</h3>
+        <button onClick={() => setEditing(newTestimonial())} className={btnPrimary}>
           + Neue Kundenstimme
         </button>
       </div>
       {message && (
-        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-600" : "text-green-600"}`}>
+        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
           {message}
         </p>
       )}
       <div className="space-y-2">
         {testimonials.map((t) => (
-          <div key={t.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div key={t.id} className={cardClasses}>
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex gap-0.5 mb-1">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <svg
                       key={i}
-                      className={`w-4 h-4 ${i < t.rating ? "text-amber-500" : "text-gray-300"}`}
+                      className={`w-4 h-4 ${i < t.rating ? "text-amber-500" : "text-[#333]"}`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -930,28 +893,139 @@ function TestimonialsTab({ password }: { password: string }) {
                     </svg>
                   ))}
                 </div>
-                <p className="text-sm text-gray-700 italic line-clamp-2">&ldquo;{t.quote}&rdquo;</p>
-                <p className="text-xs text-gray-500 mt-1">{t.name} – {t.location}</p>
+                <p className="text-sm text-[#9A958D] italic line-clamp-2">&ldquo;{t.quote}&rdquo;</p>
+                <p className="text-xs text-[#6B6660] mt-1">{t.name} – {t.location}</p>
               </div>
               <div className="flex gap-2 flex-shrink-0">
-                <button
-                  onClick={() => setEditing(t)}
-                  className="px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Bearbeiten
-                </button>
-                <button
-                  onClick={() => handleDelete(t.id)}
-                  className="px-3 py-1.5 text-xs bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
-                >
-                  Löschen
-                </button>
+                <button onClick={() => setEditing(t)} className={btnOutlineSmall}>Bearbeiten</button>
+                <button onClick={() => handleDelete(t.id)} className={btnDangerSmall}>Löschen</button>
               </div>
             </div>
           </div>
         ))}
       </div>
     </div>
+  );
+}
+
+// ─── About Tab ───
+
+function AboutTab({ password }: { password: string }) {
+  const [about, setAbout] = useState<AboutInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const loadData = useCallback(async () => {
+    try {
+      const data = await apiFetch<AboutInfo>("/api/admin/about", password);
+      setAbout(data);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [password]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!about) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      const updated = await apiFetch<AboutInfo>("/api/admin/about", password, {
+        method: "PUT",
+        body: JSON.stringify(about),
+      });
+      setAbout(updated);
+      setMessage("Gespeichert!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
+  if (!about) return <p className="text-red-400">Über-mich-Daten konnten nicht geladen werden.</p>;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
+      <div>
+        <label className={labelClasses}>Titel</label>
+        <input
+          type="text"
+          value={about.title}
+          onChange={(e) => setAbout({ ...about, title: e.target.value })}
+          className={inputClasses}
+        />
+      </div>
+      <div>
+        <label className={labelClasses}>Untertitel</label>
+        <input
+          type="text"
+          value={about.subtitle}
+          onChange={(e) => setAbout({ ...about, subtitle: e.target.value })}
+          className={inputClasses}
+        />
+      </div>
+      <div>
+        <label className={labelClasses}>Absatz 1</label>
+        <textarea
+          rows={4}
+          value={about.paragraph_1}
+          onChange={(e) => setAbout({ ...about, paragraph_1: e.target.value })}
+          className={inputClasses}
+        />
+      </div>
+      <div>
+        <label className={labelClasses}>Absatz 2</label>
+        <textarea
+          rows={4}
+          value={about.paragraph_2}
+          onChange={(e) => setAbout({ ...about, paragraph_2: e.target.value })}
+          className={inputClasses}
+        />
+      </div>
+      <div>
+        <label className={labelClasses}>Absatz 3</label>
+        <textarea
+          rows={4}
+          value={about.paragraph_3}
+          onChange={(e) => setAbout({ ...about, paragraph_3: e.target.value })}
+          className={inputClasses}
+        />
+      </div>
+      <div>
+        <label className={labelClasses}>Bild</label>
+        <ImageUpload
+          password={password}
+          folder="about"
+          currentUrl={about.image_url}
+          onUploaded={(url) => setAbout({ ...about, image_url: url })}
+        />
+        <input
+          type="text"
+          value={about.image_url}
+          onChange={(e) => setAbout({ ...about, image_url: e.target.value })}
+          placeholder="Oder Bild-URL manuell eingeben"
+          className={`${inputClasses} mt-2`}
+        />
+      </div>
+      <div className="flex items-center gap-3 pt-2">
+        <button type="submit" disabled={saving} className={btnPrimary}>
+          {saving ? "Speichern..." : "Speichern"}
+        </button>
+        {message && (
+          <span className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
+            {message}
+          </span>
+        )}
+      </div>
+    </form>
   );
 }
 
@@ -985,21 +1059,21 @@ function PasswordGate({ onAuth }: { onAuth: (password: string) => void }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#0F0F0F] px-4">
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <div className="bg-[#1A1A1A] rounded-2xl shadow-sm border border-[#2A2A2A] p-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-lg">V</span>
             </div>
             <div>
-              <h1 className="font-bold text-gray-900">Admin-Bereich</h1>
-              <p className="text-xs text-gray-500">Malerbetrieb Vogel</p>
+              <h1 className="font-bold text-[#F0ECE6]">Admin-Bereich</h1>
+              <p className="text-xs text-[#6B6660]">Maler & Gestalter Vogel</p>
             </div>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="admin-password" className={labelClasses}>
                 Passwort
               </label>
               <input
@@ -1008,11 +1082,11 @@ function PasswordGate({ onAuth }: { onAuth: (password: string) => void }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+                className={inputClasses}
                 placeholder="Admin-Passwort eingeben"
               />
             </div>
-            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {error && <p className="text-red-400 text-sm">{error}</p>}
             <button
               type="submit"
               disabled={loading}
@@ -1054,28 +1128,28 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0F0F0F]">
       {/* Top bar */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-[#1A1A1A] border-b border-[#2A2A2A] sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
             <a href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 bg-amber-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">V</span>
               </div>
-              <span className="font-bold text-sm text-gray-900">Admin</span>
+              <span className="font-bold text-sm text-[#F0ECE6]">Admin</span>
             </a>
           </div>
           <div className="flex items-center gap-4">
             <a
               href="/"
-              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              className="text-sm text-[#6B6660] hover:text-[#9A958D] transition-colors"
             >
               Zur Website
             </a>
             <button
               onClick={handleLogout}
-              className="text-sm text-red-600 hover:text-red-700 font-medium transition-colors"
+              className="text-sm text-red-400 hover:text-red-300 font-medium transition-colors"
             >
               Abmelden
             </button>
@@ -1084,7 +1158,7 @@ export default function AdminPage() {
       </header>
 
       {/* Tab navigation */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-[#1A1A1A] border-b border-[#2A2A2A]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <nav className="flex gap-1 overflow-x-auto">
             {TABS.map((tab) => (
@@ -1093,8 +1167,8 @@ export default function AdminPage() {
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === tab.key
-                    ? "border-amber-600 text-amber-700"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-amber-500 text-amber-500"
+                    : "border-transparent text-[#6B6660] hover:text-[#9A958D] hover:border-[#333]"
                 }`}
               >
                 {tab.label}
@@ -1110,6 +1184,7 @@ export default function AdminPage() {
         {activeTab === "services" && <ServicesTab password={password} />}
         {activeTab === "projects" && <ProjectsTab password={password} />}
         {activeTab === "testimonials" && <TestimonialsTab password={password} />}
+        {activeTab === "about" && <AboutTab password={password} />}
       </div>
     </div>
   );

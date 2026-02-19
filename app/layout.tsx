@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -9,28 +9,35 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Malerbetrieb Vogel | Ihr Malerexperte im Landkreis Bamberg",
+  title: "Marcel Vogel | Maler & Gestalter im Landkreis Bamberg",
   description:
-    "Malerbetrieb Vogel – Ihr zuverlässiger Maler im Landkreis Bamberg. Innenanstriche, Lackierarbeiten, Spachtel- & Strukturtechniken, Renovierung & Modernisierung. Sauber, pünktlich, fair.",
+    "Marcel Vogel – Maler & Gestalter im Landkreis Bamberg. Spachtel- & Strukturtechniken, Designoberflächen, Lackierarbeiten und exklusive Wandgestaltung. Oberflächen mit Charakter.",
   keywords: [
     "Maler Bamberg",
-    "Malerbetrieb Bamberg",
-    "Maler Landkreis Bamberg",
-    "Innenanstrich Bamberg",
-    "Lackierarbeiten Bamberg",
-    "Renovierung Bamberg",
+    "Gestalter Bamberg",
     "Spachteltechnik Bamberg",
-    "Malerbetrieb Vogel",
+    "Wandgestaltung Bamberg",
+    "Maler Landkreis Bamberg",
+    "Designoberflächen Bamberg",
+    "Lackierarbeiten Bamberg",
+    "Marcel Vogel Maler",
   ],
-  authors: [{ name: "Malerbetrieb Vogel" }],
+  authors: [{ name: "Marcel Vogel – Maler & Gestalter" }],
   openGraph: {
-    title: "Malerbetrieb Vogel | Ihr Malerexperte im Landkreis Bamberg",
+    title: "Marcel Vogel | Maler & Gestalter im Landkreis Bamberg",
     description:
-      "Zuverlässiger Malerbetrieb im Landkreis Bamberg. Innenanstriche, Lackierarbeiten, Spachteltechniken und Renovierung. Jetzt Angebot anfragen!",
+      "Exklusive Wandgestaltung und Oberflächenveredelung im Landkreis Bamberg. Spachteltechniken, Designoberflächen und hochwertige Malerarbeiten. Jetzt Projekt anfragen!",
     locale: "de_DE",
     type: "website",
-    siteName: "Malerbetrieb Vogel",
+    siteName: "Marcel Vogel – Maler & Gestalter",
   },
   robots: {
     index: true,
@@ -45,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <body className={`${montserrat.variable} antialiased`}>
+      <body className={`${montserrat.variable} ${playfair.variable} antialiased`}>
         {children}
       </body>
     </html>

@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
-import type { ContactInfo, Service, Project, Testimonial } from "./types";
+import type { ContactInfo, AboutInfo, Service, Project, Testimonial } from "./types";
 
-// ─── Fallback data (matches the seeded DB values) ───
+// Fallback data (matches the seeded DB values)
 // Used if Supabase is unreachable so the site never breaks.
 
 const fallbackContact: ContactInfo = {
@@ -14,6 +14,20 @@ const fallbackContact: ContactInfo = {
   city: "Landkreis Bamberg",
   hours: "Mo–Fr: 7:00–18:00 Uhr",
   on_vacation: false,
+  updated_at: new Date().toISOString(),
+};
+
+const fallbackAbout: AboutInfo = {
+  id: 1,
+  title: "Über mich",
+  subtitle: "Leidenschaft für Oberflächen und Gestaltung",
+  paragraph_1:
+    "Mein Name ist Marcel Vogel – ich bin 19 Jahre alt und bereits in der Meisterausbildung zum Maler und Lackierer. Was andere in meinem Alter noch suchen, habe ich längst gefunden: meine Berufung. Schon früh habe ich erkannt, dass Malerarbeiten für mich mehr sind als ein Handwerk – es ist die Kunst, Räume zu verwandeln.",
+  paragraph_2:
+    "Mein Fokus liegt auf dem, was Standardmaler nicht bieten: Spachteltechniken, Strukturoberflächen und individuelle Wandgestaltung. Ich arbeite mit hochwertigen Materialien wie Kalkputz und dekorativen Beschichtungen, um Oberflächen zu schaffen, die man nicht nur sieht – sondern spürt.",
+  paragraph_3:
+    "Trotz meines jungen Alters stehe ich für höchste Qualität, absolute Zuverlässigkeit und ein Auge fürs Detail, das man sonst nur bei erfahrenen Meistern findet. Aus dem Landkreis Bamberg, für Menschen, die das Besondere schätzen.",
+  image_url: "",
   updated_at: new Date().toISOString(),
 };
 
@@ -129,7 +143,7 @@ const fallbackTestimonials: Testimonial[] = [
   },
 ];
 
-// ─── Data fetching functions ───
+// Data fetching functions
 
 export async function getContactInfo(): Promise<ContactInfo> {
   try {
@@ -146,6 +160,24 @@ export async function getContactInfo(): Promise<ContactInfo> {
     return data as ContactInfo;
   } catch {
     return fallbackContact;
+  }
+}
+
+export async function getAboutInfo(): Promise<AboutInfo> {
+  try {
+    const { data, error } = await supabase
+      .from("about_info")
+      .select("*")
+      .eq("id", 1)
+      .single();
+
+    if (error || !data) {
+      console.error("Failed to fetch about_info:", error?.message);
+      return fallbackAbout;
+    }
+    return data as AboutInfo;
+  } catch {
+    return fallbackAbout;
   }
 }
 

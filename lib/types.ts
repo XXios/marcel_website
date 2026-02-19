@@ -1,4 +1,4 @@
-// ─── Shared TypeScript types for Supabase CMS ───
+// Shared TypeScript types for Supabase CMS
 
 export interface ContactInfo {
   id: number;
@@ -10,6 +10,17 @@ export interface ContactInfo {
   city: string;
   hours: string;
   on_vacation: boolean;
+  updated_at: string;
+}
+
+export interface AboutInfo {
+  id: number;
+  title: string;
+  subtitle: string;
+  paragraph_1: string;
+  paragraph_2: string;
+  paragraph_3: string;
+  image_url: string;
   updated_at: string;
 }
 

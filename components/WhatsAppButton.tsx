@@ -27,7 +27,7 @@ export default function WhatsAppButton({ contact }: WhatsAppButtonProps) {
       </svg>
 
       {/* Tooltip */}
-      <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-primary-dark text-white text-xs font-medium px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+      <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-surface text-foreground text-xs font-medium px-3 py-2 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg border border-border">
         WhatsApp schreiben
       </span>
     </a>

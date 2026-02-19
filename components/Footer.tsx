@@ -8,7 +8,7 @@ export default function Footer({ contact }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-primary-dark border-t border-white/5">
+    <footer className="bg-background border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main footer content */}
         <div className="py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -16,28 +16,33 @@ export default function Footer({ contact }: FooterProps) {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">V</span>
+                <span className="text-primary-dark font-bold text-lg">V</span>
               </div>
-              <span className="font-bold text-lg text-white tracking-tight">
-                Malerbetrieb Vogel
-              </span>
+              <div className="flex flex-col">
+                <span className="font-bold text-lg text-foreground tracking-tight leading-tight">
+                  Vogel
+                </span>
+                <span className="text-xs text-foreground-muted uppercase tracking-widest">
+                  Maler & Gestalter
+                </span>
+              </div>
             </div>
-            <p className="text-white/40 text-sm leading-relaxed max-w-xs">
-              Ihr zuverlässiger Maler im Landkreis Bamberg. Qualität,
-              Sauberkeit und Termintreue – darauf können Sie sich
-              verlassen.
+            <p className="text-foreground-muted text-sm leading-relaxed max-w-xs">
+              Ihr Maler & Gestalter im Landkreis Bamberg.
+              {" "}Qualität, Sauberkeit und Termintreue {"–"} darauf
+              können Sie sich verlassen.
             </p>
           </div>
 
           {/* Quick links */}
           <div>
-            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
+            <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">
               Navigation
             </h4>
             <ul className="space-y-3">
               {[
                 { label: "Leistungen", href: "#leistungen" },
-                { label: "Portfolio", href: "#portfolio" },
+                { label: "Projekte", href: "#portfolio" },
                 { label: "Über mich", href: "#ueber-mich" },
                 { label: "Kundenstimmen", href: "#kundenstimmen" },
                 { label: "Kontakt", href: "#kontakt" },
@@ -45,7 +50,7 @@ export default function Footer({ contact }: FooterProps) {
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="text-white/40 hover:text-accent text-sm transition-colors"
+                    className="text-foreground-muted hover:text-accent text-sm transition-colors"
                   >
                     {link.label}
                   </a>
@@ -56,10 +61,10 @@ export default function Footer({ contact }: FooterProps) {
 
           {/* Contact info */}
           <div>
-            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">
+            <h4 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">
               Kontakt
             </h4>
-            <ul className="space-y-3 text-sm text-white/40">
+            <ul className="space-y-3 text-sm text-foreground-muted">
               <li className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-accent flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
@@ -88,22 +93,28 @@ export default function Footer({ contact }: FooterProps) {
         </div>
 
         {/* Bottom bar */}
-        <div className="py-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-white/30 text-xs">
-            &copy; {currentYear} Malerbetrieb Vogel. Alle Rechte vorbehalten.
+        <div className="py-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-foreground-muted/50 text-xs">
+            &copy; {currentYear} Maler & Gestalter Vogel. Alle Rechte vorbehalten.
           </p>
           <div className="flex items-center gap-6">
             <a
               href="/impressum"
-              className="text-white/30 hover:text-white/60 text-xs transition-colors"
+              className="text-foreground-muted/50 hover:text-foreground-muted text-xs transition-colors"
             >
               Impressum
             </a>
             <a
               href="/datenschutz"
-              className="text-white/30 hover:text-white/60 text-xs transition-colors"
+              className="text-foreground-muted/50 hover:text-foreground-muted text-xs transition-colors"
             >
               Datenschutz
+            </a>
+            <a
+              href="/admin"
+              className="text-foreground-muted/50 hover:text-foreground-muted text-xs transition-colors"
+            >
+              Admin
             </a>
           </div>
         </div>

@@ -14,7 +14,7 @@ function StarRating({ rating }: { rating: number }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <svg
           key={i}
-          className={`w-5 h-5 ${i < rating ? "text-accent" : "text-border"}`}
+          className={`w-4 h-4 ${i < rating ? "text-accent" : "text-border"}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -43,7 +43,6 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
   const next = useCallback(() => goTo(active + 1), [active, goTo]);
   const prev = useCallback(() => goTo(active - 1), [active, goTo]);
 
-  // Auto-advance every 5s
   useEffect(() => {
     autoPlayRef.current = setInterval(() => {
       if (!pauseRef.current) {
@@ -62,7 +61,6 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
     }, 4000);
   }, []);
 
-  // Touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchDeltaX.current = 0;
@@ -90,8 +88,8 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
     <section id="kundenstimmen" className="py-20 md:py-28 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          title="Das sagen unsere Kunden"
-          subtitle="Zufriedene Kunden sind unsere beste Referenz."
+          title="Kundenstimmen"
+          subtitle="Was Kunden über die Zusammenarbeit sagen."
         />
 
         {/* Carousel */}
@@ -99,7 +97,7 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
           {/* Left arrow */}
           <button
             onClick={() => { prev(); pauseAutoplay(); }}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-14 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-foreground-muted hover:text-primary hover:shadow-md transition-all"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-14 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-surface border border-border flex items-center justify-center text-foreground-muted hover:text-accent hover:border-accent/30 transition-all"
             aria-label="Vorherige Bewertung"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -110,7 +108,7 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
           {/* Right arrow */}
           <button
             onClick={() => { next(); pauseAutoplay(); }}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-14 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white border border-border shadow-sm flex items-center justify-center text-foreground-muted hover:text-primary hover:shadow-md transition-all"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-14 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-surface border border-border flex items-center justify-center text-foreground-muted hover:text-accent hover:border-accent/30 transition-all"
             aria-label="Nächste Bewertung"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -131,9 +129,9 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
             >
               {testimonials.map((t) => (
                 <div key={t.id} className="w-full flex-shrink-0 px-2">
-                  <div className="bg-white rounded-2xl p-8 sm:p-10 shadow-sm border border-border">
-                    {/* Big quote mark */}
-                    <div className="text-accent/20 mb-4">
+                  <div className="bg-surface rounded-2xl p-8 sm:p-10 border border-border">
+                    {/* Quote mark */}
+                    <div className="text-accent/15 mb-4">
                       <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10H14.017zM0 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151C7.546 6.068 5.983 8.789 5.983 11h4v10H0z" />
                       </svg>
@@ -143,19 +141,19 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
                     <StarRating rating={t.rating} />
 
                     {/* Quote */}
-                    <blockquote className="text-foreground leading-relaxed mt-4 mb-6 text-base sm:text-lg italic">
-                      &ldquo;{t.quote}&rdquo;
+                    <blockquote className="text-foreground/80 leading-relaxed mt-4 mb-6 text-base sm:text-lg font-heading italic">
+                      „{t.quote}“
                     </blockquote>
 
                     {/* Author */}
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-accent-light flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-accent-light border border-accent/20 flex items-center justify-center">
                         <span className="text-accent font-bold text-sm">
                           {t.name.charAt(0)}
                         </span>
                       </div>
                       <div>
-                        <p className="font-semibold text-primary text-sm">{t.name}</p>
+                        <p className="font-semibold text-foreground text-sm">{t.name}</p>
                         <p className="text-foreground-muted text-xs">{t.location}</p>
                       </div>
                     </div>
@@ -173,8 +171,8 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
                 onClick={() => { goTo(i); pauseAutoplay(); }}
                 className={`rounded-full transition-all duration-300 ${
                   i === active
-                    ? "w-8 h-2.5 bg-accent"
-                    : "w-2.5 h-2.5 bg-border hover:bg-foreground-muted"
+                    ? "w-8 h-2 bg-accent"
+                    : "w-2 h-2 bg-border hover:bg-foreground-muted"
                 }`}
                 aria-label={`Bewertung ${i + 1}`}
               />
@@ -184,7 +182,7 @@ export default function Testimonials({ testimonials }: TestimonialsProps) {
 
         {/* Google review hint */}
         <div className="mt-12 text-center">
-          <div className="inline-flex items-center gap-3 bg-background-alt rounded-full px-6 py-3 border border-border">
+          <div className="inline-flex items-center gap-3 bg-surface rounded-full px-6 py-3 border border-border">
             <div className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
                 <svg key={i} className="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20">
