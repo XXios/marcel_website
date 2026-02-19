@@ -68,9 +68,9 @@ export default function Header({ contact }: HeaderProps) {
               <Image
                 src="/images/logo.png"
                 alt="Vogel Maler & Gestalter Logo"
-                width={40}
-                height={40}
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg group-hover:scale-105 transition-transform"
+                width={56}
+                height={56}
+                className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg group-hover:scale-105 transition-transform"
               />
               <div className="flex flex-col leading-tight">
                 <span className="font-bold text-sm sm:text-lg tracking-tight text-foreground">
@@ -158,9 +158,9 @@ export default function Header({ contact }: HeaderProps) {
               <Image
                 src="/images/logo.png"
                 alt="Vogel Maler & Gestalter Logo"
-                width={40}
-                height={40}
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg"
+                width={56}
+                height={56}
+                className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg"
               />
               <div className="flex flex-col leading-tight">
                 <span className="font-bold text-sm sm:text-lg tracking-tight text-foreground">
