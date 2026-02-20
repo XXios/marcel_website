@@ -11,6 +11,15 @@ export interface ContactInfo {
   city: string;
   hours: string;
   on_vacation: boolean;
+  // Impressum fields
+  full_name: string;
+  business_name: string;
+  street: string;
+  zip_city: string;
+  region: string;
+  tax_info: string;
+  profession: string;
+  chamber: string;
   updated_at: string;
 }
 

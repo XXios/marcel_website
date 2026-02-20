@@ -15,6 +15,15 @@ const fallbackContact: ContactInfo = {
   city: "Landkreis Bamberg",
   hours: "Mo\u2013Fr: 7:00\u201318:00 Uhr",
   on_vacation: false,
+  // Impressum fallbacks
+  full_name: "Marcel Vogel",
+  business_name: "Maler & Gestalter Vogel",
+  street: "Hauptstra\u00dfe 34",
+  zip_city: "96117 Memmelsdorf",
+  region: "Landkreis Bamberg",
+  tax_info: "Kleinunternehmer gem\u00e4\u00df \u00a7 19 UStG \u2013 keine Umsatzsteuer-ID vorhanden.",
+  profession: "Maler und Lackierer",
+  chamber: "Handwerkskammer f\u00fcr Oberfranken",
   updated_at: new Date().toISOString(),
 };
 

@@ -38,7 +38,7 @@ export async function PUT(request: NextRequest) {
 
     // Only allow updating specific fields
     const updates: Record<string, string | boolean> = {};
-    const allowedFields = ["phone", "phone_raw", "email", "whatsapp", "instagram", "address", "city", "hours", "on_vacation"];
+    const allowedFields = ["phone", "phone_raw", "email", "whatsapp", "instagram", "address", "city", "hours", "on_vacation", "full_name", "business_name", "street", "zip_city", "region", "tax_info", "profession", "chamber"];
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
         updates[field] = body[field];

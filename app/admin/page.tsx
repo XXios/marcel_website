@@ -322,6 +322,21 @@ function ContactTab({ password }: { password: string }) {
         </div>
       </div>
 
+      {/* ── Impressum Fields ── */}
+      <div className="border-t border-[#2A2A2A] pt-6 mt-6">
+        <h3 className="text-sm font-semibold text-[#F0ECE6] mb-4 uppercase tracking-wider">Impressum-Angaben</h3>
+        <div className="space-y-4">
+          {field("Vollständiger Name", "full_name")}
+          {field("Firmenname", "business_name")}
+          {field("Straße und Hausnummer", "street")}
+          {field("PLZ und Ort", "zip_city")}
+          {field("Region", "region")}
+          {field("Steuerhinweis (USt-IdNr. oder Kleinunternehmer)", "tax_info")}
+          {field("Berufsbezeichnung", "profession")}
+          {field("Zuständige Kammer", "chamber")}
+        </div>
+      </div>
+
       <div className="flex items-center gap-3 pt-2">
         <button type="submit" disabled={saving} className={btnPrimary}>
           {saving ? "Speichern..." : "Speichern"}
