@@ -16,12 +16,58 @@ export default function Contact({ contact }: ContactProps) {
     phone: "",
     message: "",
   });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const phoneRegex = /^[0-9+\s\-/()]+$/;
+
+  function validate(): boolean {
+    const errors: Record<string, string> = {};
+
+    if (!formState.name.trim()) {
+      errors.name = "Name ist erforderlich.";
+    }
+
+    if (!formState.email.trim()) {
+      errors.email = "E-Mail-Adresse ist erforderlich.";
+    } else if (!emailRegex.test(formState.email.trim())) {
+      errors.email = "Bitte geben Sie eine g\u00fcltige E-Mail-Adresse ein (z.\u00a0B. name@beispiel.de).";
+    }
+
+    if (formState.phone.trim()) {
+      if (!phoneRegex.test(formState.phone.trim())) {
+        errors.phone = "Telefonnummer darf nur Ziffern, +, Leerzeichen, -, / und Klammern enthalten.";
+      } else if (formState.phone.replace(/[^0-9]/g, "").length < 6) {
+        errors.phone = "Telefonnummer ist zu kurz.";
+      }
+    }
+
+    if (!formState.message.trim()) {
+      errors.message = "Nachricht ist erforderlich.";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
+  function updateField(key: string, value: string) {
+    setFormState((s) => ({ ...s, [key]: value }));
+    // Clear field error on change
+    if (fieldErrors[key]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    }
+  }
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!validate()) return;
     setLoading(true);
     setError("");
 
@@ -91,10 +137,11 @@ export default function Contact({ contact }: ContactProps) {
                       id="name"
                       required
                       value={formState.name}
-                      onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
-                      className="w-full px-4 py-3 rounded-lg bg-background border border-border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                      onChange={(e) => updateField("name", e.target.value)}
+                      className={`w-full px-4 py-3 rounded-lg bg-background border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:ring-1 transition-colors ${fieldErrors.name ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-border focus:border-accent focus:ring-accent"}`}
                       placeholder="Ihr Name"
                     />
+                    {fieldErrors.name && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.name}</p>}
                   </div>
                   <div>
                     <label htmlFor="phone" className="block text-sm font-medium text-foreground-muted mb-2">
@@ -104,10 +151,11 @@ export default function Contact({ contact }: ContactProps) {
                       type="tel"
                       id="phone"
                       value={formState.phone}
-                      onChange={(e) => setFormState((s) => ({ ...s, phone: e.target.value }))}
-                      className="w-full px-4 py-3 rounded-lg bg-background border border-border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                      onChange={(e) => updateField("phone", e.target.value)}
+                      className={`w-full px-4 py-3 rounded-lg bg-background border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:ring-1 transition-colors ${fieldErrors.phone ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-border focus:border-accent focus:ring-accent"}`}
                       placeholder="Ihre Telefonnummer"
                     />
+                    {fieldErrors.phone && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.phone}</p>}
                   </div>
                 </div>
                 <div>
@@ -119,10 +167,11 @@ export default function Contact({ contact }: ContactProps) {
                     id="email"
                     required
                     value={formState.email}
-                    onChange={(e) => setFormState((s) => ({ ...s, email: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-lg bg-background border border-border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                    onChange={(e) => updateField("email", e.target.value)}
+                    className={`w-full px-4 py-3 rounded-lg bg-background border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:ring-1 transition-colors ${fieldErrors.email ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-border focus:border-accent focus:ring-accent"}`}
                     placeholder="ihre@email.de"
                   />
+                  {fieldErrors.email && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.email}</p>}
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-foreground-muted mb-2">
@@ -133,10 +182,11 @@ export default function Contact({ contact }: ContactProps) {
                     required
                     rows={5}
                     value={formState.message}
-                    onChange={(e) => setFormState((s) => ({ ...s, message: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-lg bg-background border border-border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
-                    placeholder="Beschreiben Sie kurz Ihr Projekt (Raum, Fläche, gewünschte Arbeiten...)"
+                    onChange={(e) => updateField("message", e.target.value)}
+                    className={`w-full px-4 py-3 rounded-lg bg-background border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:ring-1 transition-colors resize-none ${fieldErrors.message ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-border focus:border-accent focus:ring-accent"}`}
+                    placeholder="Beschreiben Sie kurz Ihr Projekt (Raum, Fl\u00e4che, gew\u00fcnschte Arbeiten...)"
                   />
+                  {fieldErrors.message && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.message}</p>}
                 </div>
                 <Button
                   type="submit"

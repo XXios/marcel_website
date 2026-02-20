@@ -15,6 +15,22 @@ export async function POST(request: Request) {
     if (!name || typeof name !== "string" || name.trim().length === 0) {
       return NextResponse.json({ error: "Name ist erforderlich." }, { status: 400 });
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!email || typeof email !== "string" || !emailRegex.test(email.trim())) {
+      return NextResponse.json({ error: "Bitte geben Sie eine g\u00fcltige E-Mail-Adresse ein." }, { status: 400 });
+    }
+
+    if (phone && typeof phone === "string" && phone.trim().length > 0) {
+      const phoneRegex = /^[0-9+\s\-/()]+$/;
+      if (!phoneRegex.test(phone.trim()) || phone.replace(/[^0-9]/g, "").length < 6) {
+        return NextResponse.json({ error: "Bitte geben Sie eine g\u00fcltige Telefonnummer ein." }, { status: 400 });
+      }
+    }
+
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
+      return NextResponse.json({ error: "Nachricht ist erforderlich." }, { status: 400 });
+    }
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return NextResponse.json({ error: "Gültige E-Mail-Adresse ist erforderlich." }, { status: 400 });
     }
