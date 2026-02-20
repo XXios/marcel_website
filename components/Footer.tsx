@@ -14,20 +14,20 @@ export default function Footer({ contact }: FooterProps) {
         {/* Main footer content */}
         <div className="py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
+          <div className="flex flex-col items-center text-center">
+            <div className="flex flex-col items-center gap-3 mb-4">
               <Image
                 src="/images/logo.png"
                 alt="Vogel Maler & Gestalter Logo"
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-lg"
+                width={64}
+                height={64}
+                className="w-16 h-16 rounded-xl"
               />
-              <div className="flex flex-col">
-                <span className="font-bold text-lg text-foreground tracking-tight leading-tight">
+              <div className="flex flex-col items-center">
+                <span className="font-bold text-xl text-foreground tracking-tight leading-tight">
                   Vogel
                 </span>
-                <span className="text-xs text-foreground-muted uppercase tracking-widest">
+                <span className="text-sm text-foreground-muted uppercase tracking-[0.3em]">
                   Maler & Gestalter
                 </span>
               </div>

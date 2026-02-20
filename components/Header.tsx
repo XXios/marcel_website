@@ -62,21 +62,21 @@ export default function Header({ contact }: HeaderProps) {
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-20">
+          <div className="flex items-center justify-between h-16 sm:h-24">
             {/* Logo */}
-            <a href="/" className="flex items-center gap-2 sm:gap-3 group">
+            <a href="/" className="flex flex-col items-center gap-2 sm:gap-3 group max-w-[140px]">
               <Image
                 src="/images/logo.png"
                 alt="Vogel Maler & Gestalter Logo"
-                width={56}
-                height={56}
-                className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg group-hover:scale-105 transition-transform"
+                width={72}
+                height={72}
+                className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl group-hover:scale-105 transition-transform"
               />
-              <div className="flex flex-col leading-tight">
-                <span className="font-bold text-sm sm:text-lg tracking-tight text-foreground">
+              <div className="flex flex-col items-center leading-tight text-center">
+                <span className="font-bold text-base sm:text-2xl tracking-tight text-foreground">
                   Vogel
                 </span>
-                <span className="text-[10px] sm:text-xs text-foreground-muted tracking-widest uppercase">
+                <span className="text-[11px] sm:text-sm text-foreground-muted tracking-[0.3em] uppercase">
                   Maler & Gestalter
                 </span>
               </div>
@@ -153,20 +153,20 @@ export default function Header({ contact }: HeaderProps) {
           }`}
         >
           {/* Top bar with logo + close */}
-          <div className="flex items-center justify-between px-4 sm:px-6 h-14 sm:h-20 flex-shrink-0">
-            <a href="/" onClick={closeMenu} className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center justify-between px-4 sm:px-6 h-16 sm:h-24 flex-shrink-0">
+            <a href="/" onClick={closeMenu} className="flex flex-col items-center gap-2 sm:gap-3 max-w-[140px]">
               <Image
                 src="/images/logo.png"
                 alt="Vogel Maler & Gestalter Logo"
-                width={56}
-                height={56}
-                className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg"
+                width={72}
+                height={72}
+                className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl"
               />
-              <div className="flex flex-col leading-tight">
-                <span className="font-bold text-sm sm:text-lg tracking-tight text-foreground">
+              <div className="flex flex-col items-center leading-tight text-center">
+                <span className="font-bold text-base sm:text-2xl tracking-tight text-foreground">
                   Vogel
                 </span>
-                <span className="text-[10px] sm:text-xs text-foreground-muted tracking-widest uppercase">
+                <span className="text-[11px] sm:text-sm text-foreground-muted tracking-[0.3em] uppercase">
                   Maler & Gestalter
                 </span>
               </div>
