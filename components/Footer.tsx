@@ -49,6 +49,7 @@ export default function Footer({ contact }: FooterProps) {
                 { label: "Leistungen", href: "/#leistungen" },
                 { label: "Projekte", href: "/#portfolio" },
                 { label: "Galerie", href: "/galerie" },
+                { label: "Objekte", href: "/objekte" },
                 { label: "\u00dcber mich", href: "/#ueber-mich" },
                 { label: "Kundenstimmen", href: "/#kundenstimmen" },
                 { label: "Kontakt", href: "/#kontakt" },

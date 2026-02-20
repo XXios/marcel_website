@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { ContactInfo, AboutInfo, SiteSettings, Service, Project, Testimonial, GalleryItem } from "./types";
+import type { ContactInfo, AboutInfo, SiteSettings, Service, Project, Testimonial, GalleryItem, Objekt, ObjektImage } from "./types";
 
 // Fallback data (matches the seeded DB values)
 // Used if Supabase is unreachable so the site never breaks.
@@ -160,6 +160,8 @@ const fallbackTestimonials: Testimonial[] = [
 
 const fallbackGallery: GalleryItem[] = [];
 
+const fallbackObjekte: Objekt[] = [];
+
 // Data fetching functions
 
 export async function getContactInfo(): Promise<ContactInfo> {
@@ -281,5 +283,58 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
     return data as GalleryItem[];
   } catch {
     return fallbackGallery;
+  }
+}
+
+export async function getObjekte(): Promise<Objekt[]> {
+  try {
+    const { data, error } = await supabase
+      .from("objekte")
+      .select("*")
+      .order("sort_order", { ascending: true });
+
+    if (error || !data || data.length === 0) {
+      console.error("Failed to fetch objekte:", error?.message);
+      return fallbackObjekte;
+    }
+    return data as Objekt[];
+  } catch {
+    return fallbackObjekte;
+  }
+}
+
+export async function getObjektById(id: string): Promise<Objekt | null> {
+  try {
+    const { data, error } = await supabase
+      .from("objekte")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !data) {
+      console.error("Failed to fetch objekt:", error?.message);
+      return null;
+    }
+    return data as Objekt;
+  } catch {
+    return null;
+  }
+}
+
+export async function getObjektImages(objektId: string): Promise<ObjektImage[]> {
+  try {
+    const { data, error } = await supabase
+      .from("objekt_images")
+      .select("*")
+      .eq("objekt_id", objektId)
+      .order("sort_order", { ascending: true });
+
+    if (error || !data) {
+      console.error("Failed to fetch objekt_images:", error?.message);
+      return [];
+    }
+    return data as ObjektImage[];
+  } catch {
+    return [];
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, type FormEvent, type DragEvent } from "react";
-import type { ContactInfo, Service, Project, Testimonial, AboutInfo, GalleryItem, SiteSettings } from "@/lib/types";
+import type { ContactInfo, Service, Project, Testimonial, AboutInfo, GalleryItem, SiteSettings, Objekt, ObjektImage } from "@/lib/types";
 import { ICONS } from "@/lib/icons";
 
 // ─── Dark admin design tokens (inline) ───
@@ -45,7 +45,7 @@ async function apiFetch<T>(
 
 // ─── Tabs ───
 
-type Tab = "contact" | "services" | "projects" | "testimonials" | "about" | "gallery" | "settings";
+type Tab = "contact" | "services" | "projects" | "testimonials" | "about" | "gallery" | "objekte" | "settings";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "contact", label: "Kontaktdaten" },
@@ -54,6 +54,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "testimonials", label: "Kundenstimmen" },
   { key: "about", label: "\u00dcber mich" },
   { key: "gallery", label: "Galerie" },
+  { key: "objekte", label: "Objekte" },
   { key: "settings", label: "Einstellungen" },
 ];
 
@@ -1250,6 +1251,494 @@ function GalleryTab({ password }: { password: string }) {
   );
 }
 
+// ─── Objekte Manager ───
+
+function ObjekteTab({ password }: { password: string }) {
+  const [objekte, setObjekte] = useState<Objekt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Objekt | null>(null);
+  const [message, setMessage] = useState("");
+  // Image management state
+  const [images, setImages] = useState<ObjektImage[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
+  const [editingImage, setEditingImage] = useState<ObjektImage | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      const data = await apiFetch<Objekt[]>("/api/admin/objekte", password);
+      setObjekte(data);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [password]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const loadImages = useCallback(async (objektId: string) => {
+    setImagesLoading(true);
+    try {
+      const data = await apiFetch<ObjektImage[]>(
+        `/api/admin/objekt-images?objekt_id=${objektId}`,
+        password
+      );
+      setImages(data);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    } finally {
+      setImagesLoading(false);
+    }
+  }, [password]);
+
+  const startEditing = (o: Objekt | null) => {
+    if (o) {
+      setEditing(o);
+      loadImages(o.id);
+    } else {
+      const newObjekt: Objekt = {
+        id: "",
+        title: "",
+        location: "",
+        description: "",
+        cover_image_url: "",
+        review_name: null,
+        review_text: null,
+        review_rating: null,
+        sort_order: objekte.length,
+        created_at: "",
+      };
+      setEditing(newObjekt);
+      setImages([]);
+    }
+    setEditingImage(null);
+  };
+
+  const handleSave = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editing) return;
+    setMessage("");
+    try {
+      if (editing.id) {
+        await apiFetch("/api/admin/objekte", password, {
+          method: "PUT",
+          body: JSON.stringify(editing),
+        });
+      } else {
+        const created = await apiFetch<Objekt>("/api/admin/objekte", password, {
+          method: "POST",
+          body: JSON.stringify(editing),
+        });
+        // Switch to editing the created objekt so images can be added
+        setEditing(created);
+      }
+      await loadData();
+      setMessage("Gespeichert!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Wirklich l\u00f6schen? Alle zugeh\u00f6rigen Bilder werden ebenfalls gel\u00f6scht.")) return;
+    try {
+      await apiFetch("/api/admin/objekte", password, {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+      });
+      await loadData();
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    }
+  };
+
+  // ── Image CRUD ──
+
+  const startEditingImage = (img: ObjektImage | null) => {
+    if (img) {
+      setEditingImage(img);
+    } else {
+      setEditingImage({
+        id: "",
+        objekt_id: editing!.id,
+        before_image_url: "",
+        after_image_url: null,
+        caption: null,
+        sort_order: images.length,
+        created_at: "",
+      });
+    }
+  };
+
+  const handleSaveImage = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingImage) return;
+    setMessage("");
+    try {
+      if (editingImage.id) {
+        await apiFetch("/api/admin/objekt-images", password, {
+          method: "PUT",
+          body: JSON.stringify(editingImage),
+        });
+      } else {
+        await apiFetch("/api/admin/objekt-images", password, {
+          method: "POST",
+          body: JSON.stringify(editingImage),
+        });
+      }
+      setEditingImage(null);
+      await loadImages(editing!.id);
+      setMessage("Bild gespeichert!");
+      setTimeout(() => setMessage(""), 3000);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    }
+  };
+
+  const handleDeleteImage = async (id: string) => {
+    if (!confirm("Bild wirklich l\u00f6schen?")) return;
+    try {
+      await apiFetch("/api/admin/objekt-images", password, {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+      });
+      await loadImages(editing!.id);
+    } catch (e) {
+      setMessage(`Fehler: ${e instanceof Error ? e.message : "Unbekannt"}`);
+    }
+  };
+
+  if (loading) return <p className="text-[#6B6660]">Laden...</p>;
+
+  // ── Image editing form ──
+  if (editingImage) {
+    return (
+      <form onSubmit={handleSaveImage} className="space-y-4 max-w-lg">
+        <button
+          type="button"
+          onClick={() => setEditingImage(null)}
+          className="text-sm text-[#9A958D] hover:text-[#F0ECE6] transition-colors flex items-center gap-1"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          Zur{"\u00fc"}ck zum Objekt
+        </button>
+        <h3 className="font-semibold text-[#F0ECE6]">
+          {editingImage.id ? "Bild bearbeiten" : "Neues Bild"}
+        </h3>
+
+        <div>
+          <label className={labelClasses}>Bild (Vorher-Bild oder einzelnes Bild)</label>
+          <ImageUpload
+            password={password}
+            folder="objekte"
+            currentUrl={editingImage.before_image_url}
+            onUploaded={(url) => setEditingImage({ ...editingImage, before_image_url: url })}
+          />
+          <input
+            type="text"
+            value={editingImage.before_image_url}
+            onChange={(e) => setEditingImage({ ...editingImage, before_image_url: e.target.value })}
+            placeholder="Bild-URL"
+            className={`${inputClasses} mt-2`}
+          />
+        </div>
+
+        <div className="p-4 rounded-lg border border-[#2A2A2A] bg-[#111] space-y-4">
+          <div>
+            <p className="text-sm font-medium text-[#F0ECE6] mb-1">Nachher-Bild (optional)</p>
+            <p className="text-xs text-[#6B6660]">Wenn gesetzt, wird ein Vorher/Nachher-Slider angezeigt.</p>
+          </div>
+          <ImageUpload
+            password={password}
+            folder="objekte"
+            currentUrl={editingImage.after_image_url || ""}
+            onUploaded={(url) => setEditingImage({ ...editingImage, after_image_url: url })}
+          />
+          <input
+            type="text"
+            value={editingImage.after_image_url || ""}
+            onChange={(e) => setEditingImage({ ...editingImage, after_image_url: e.target.value || null })}
+            placeholder="Nachher-Bild URL (leer lassen f\u00fcr einzelnes Bild)"
+            className={inputClasses}
+          />
+        </div>
+
+        <div>
+          <label className={labelClasses}>Bildunterschrift (optional)</label>
+          <textarea
+            rows={2}
+            value={editingImage.caption || ""}
+            onChange={(e) => setEditingImage({ ...editingImage, caption: e.target.value || null })}
+            className={inputClasses}
+            placeholder="Optionale Beschreibung unter dem Bild"
+          />
+        </div>
+
+        <div>
+          <label className={labelClasses}>Sortierung</label>
+          <input
+            type="number"
+            value={editingImage.sort_order}
+            onChange={(e) => setEditingImage({ ...editingImage, sort_order: parseInt(e.target.value) || 0 })}
+            className={`w-24 ${inputClasses}`}
+          />
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
+          <button type="submit" className={btnPrimary}>Speichern</button>
+          <button type="button" onClick={() => setEditingImage(null)} className={btnSecondary}>Abbrechen</button>
+        </div>
+        {message && (
+          <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
+            {message}
+          </p>
+        )}
+      </form>
+    );
+  }
+
+  // ── Objekt editing form ──
+  if (editing) {
+    return (
+      <div className="space-y-6">
+        <form onSubmit={handleSave} className="space-y-4 max-w-lg">
+          <button
+            type="button"
+            onClick={() => { setEditing(null); setImages([]); }}
+            className="text-sm text-[#9A958D] hover:text-[#F0ECE6] transition-colors flex items-center gap-1"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            Zur{"\u00fc"}ck zur {"\u00dc"}bersicht
+          </button>
+          <h3 className="font-semibold text-[#F0ECE6]">
+            {editing.id ? "Objekt bearbeiten" : "Neues Objekt"}
+          </h3>
+
+          <div>
+            <label className={labelClasses}>Titel</label>
+            <input
+              type="text"
+              required
+              value={editing.title}
+              onChange={(e) => setEditing({ ...editing, title: e.target.value })}
+              className={inputClasses}
+              placeholder="z.B. Villa Bamberg"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>Standort</label>
+            <input
+              type="text"
+              value={editing.location}
+              onChange={(e) => setEditing({ ...editing, location: e.target.value })}
+              className={inputClasses}
+              placeholder="z.B. Bamberg, Oberfranken"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>Beschreibung</label>
+            <textarea
+              rows={4}
+              value={editing.description}
+              onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+              className={inputClasses}
+              placeholder="Projektbeschreibung f\u00fcr den Kunden"
+            />
+          </div>
+
+          <div>
+            <label className={labelClasses}>Titelbild (Cover)</label>
+            <ImageUpload
+              password={password}
+              folder="objekte"
+              currentUrl={editing.cover_image_url}
+              onUploaded={(url) => setEditing({ ...editing, cover_image_url: url })}
+            />
+            <input
+              type="text"
+              value={editing.cover_image_url}
+              onChange={(e) => setEditing({ ...editing, cover_image_url: e.target.value })}
+              placeholder="Oder Bild-URL manuell eingeben"
+              className={`${inputClasses} mt-2`}
+            />
+          </div>
+
+          {/* Review section */}
+          <div className="p-4 rounded-lg border border-[#2A2A2A] bg-[#111] space-y-4">
+            <div>
+              <p className="text-sm font-medium text-[#F0ECE6] mb-1">Kundenbewertung (optional)</p>
+              <p className="text-xs text-[#6B6660]">Falls der Kunde eine Bewertung hinterlassen hat, kann diese hier eingetragen werden.</p>
+            </div>
+            <div>
+              <label className={labelClasses}>Kundenname</label>
+              <input
+                type="text"
+                value={editing.review_name || ""}
+                onChange={(e) => setEditing({ ...editing, review_name: e.target.value || null })}
+                className={inputClasses}
+                placeholder="z.B. Familie M."
+              />
+            </div>
+            <div>
+              <label className={labelClasses}>Bewertungstext</label>
+              <textarea
+                rows={3}
+                value={editing.review_text || ""}
+                onChange={(e) => setEditing({ ...editing, review_text: e.target.value || null })}
+                className={inputClasses}
+                placeholder="z.B. Hervorragende Arbeit, sehr zufrieden..."
+              />
+            </div>
+            <div>
+              <label className={labelClasses}>Bewertung</label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setEditing({ ...editing, review_rating: star })}
+                    className="p-1"
+                  >
+                    <svg
+                      className={`w-6 h-6 ${star <= (editing.review_rating || 0) ? "text-amber-500" : "text-[#333]"}`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  </button>
+                ))}
+                {editing.review_rating && (
+                  <button
+                    type="button"
+                    onClick={() => setEditing({ ...editing, review_rating: null })}
+                    className="ml-2 text-xs text-[#6B6660] hover:text-[#9A958D]"
+                  >
+                    Zur{"\u00fc"}cksetzen
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className={labelClasses}>Sortierung</label>
+            <input
+              type="number"
+              value={editing.sort_order}
+              onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })}
+              className={`w-24 ${inputClasses}`}
+            />
+          </div>
+
+          <div className="flex items-center gap-3 pt-2">
+            <button type="submit" className={btnPrimary}>Speichern</button>
+            <button type="button" onClick={() => { setEditing(null); setImages([]); }} className={btnSecondary}>Abbrechen</button>
+          </div>
+          {message && (
+            <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
+              {message}
+            </p>
+          )}
+        </form>
+
+        {/* Image management (only for existing objekte) */}
+        {editing.id && (
+          <div className="max-w-2xl">
+            <div className="flex items-center justify-between mb-4 pt-4 border-t border-[#2A2A2A]">
+              <h3 className="font-semibold text-[#F0ECE6]">
+                Bilder ({images.length})
+              </h3>
+              <button onClick={() => startEditingImage(null)} className={btnPrimary}>
+                + Neues Bild
+              </button>
+            </div>
+            {imagesLoading ? (
+              <p className="text-[#6B6660]">Laden...</p>
+            ) : images.length === 0 ? (
+              <p className="text-[#6B6660] text-sm">Noch keine Bilder vorhanden.</p>
+            ) : (
+              <div className="space-y-2">
+                {images.map((img) => (
+                  <div key={img.id} className={`flex items-center gap-4 ${cardClasses}`}>
+                    {img.before_image_url && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={img.before_image_url} alt="Vorschau" className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
+                    )}
+                    {img.after_image_url && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={img.after_image_url} alt="Nachher" className="w-16 h-16 object-cover rounded-lg flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-[#F0ECE6] truncate">
+                        {img.after_image_url ? "Vorher/Nachher" : "Einzelbild"}
+                        {img.caption ? ` \u2013 ${img.caption}` : ""}
+                      </p>
+                      <p className="text-xs text-[#6B6660]">Sortierung: {img.sort_order}</p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button onClick={() => startEditingImage(img)} className={btnOutlineSmall}>Bearbeiten</button>
+                      <button onClick={() => handleDeleteImage(img.id)} className={btnDangerSmall}>L{"\u00f6"}schen</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Objekte list ──
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-[#F0ECE6]">{objekte.length} Objekte</h3>
+        <button onClick={() => startEditing(null)} className={btnPrimary}>
+          + Neues Objekt
+        </button>
+      </div>
+      {message && (
+        <p className={`text-sm ${message.startsWith("Fehler") ? "text-red-400" : "text-green-400"}`}>
+          {message}
+        </p>
+      )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {objekte.map((o) => (
+          <div key={o.id} className={`${cardClasses} p-0 overflow-hidden`}>
+            {o.cover_image_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={o.cover_image_url} alt={o.title} className="w-full aspect-[4/3] object-cover" />
+            ) : (
+              <div className="w-full aspect-[4/3] bg-[#111] flex items-center justify-center">
+                <span className="text-[#6B6660] text-xs">Kein Bild</span>
+              </div>
+            )}
+            <div className="p-3">
+              <p className="font-medium text-[#F0ECE6] text-sm truncate">{o.title}</p>
+              {o.location && (
+                <p className="text-xs text-[#6B6660] truncate mt-0.5">{o.location}</p>
+              )}
+              <div className="flex gap-2 mt-2">
+                <button onClick={() => startEditing(o)} className={btnOutlineSmall}>Bearbeiten</button>
+                <button onClick={() => handleDelete(o.id)} className={btnDangerSmall}>L{"\u00f6"}schen</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Settings Tab (Einstellungen) ───
 
 function SettingsTab({ password }: { password: string }) {
@@ -1486,6 +1975,7 @@ export default function AdminPage() {
         {activeTab === "testimonials" && <TestimonialsTab password={password} />}
         {activeTab === "about" && <AboutTab password={password} />}
         {activeTab === "gallery" && <GalleryTab password={password} />}
+        {activeTab === "objekte" && <ObjekteTab password={password} />}
         {activeTab === "settings" && <SettingsTab password={password} />}
       </div>
     </div>

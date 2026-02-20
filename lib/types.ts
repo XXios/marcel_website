@@ -72,3 +72,26 @@ export interface GalleryItem {
   sort_order: number;
   created_at: string;
 }
+
+export interface Objekt {
+  id: string;
+  title: string;
+  location: string;
+  description: string;
+  cover_image_url: string;
+  review_name: string | null;
+  review_text: string | null;
+  review_rating: number | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface ObjektImage {
+  id: string;
+  objekt_id: string;
+  before_image_url: string;
+  after_image_url: string | null;
+  caption: string | null;
+  sort_order: number;
+  created_at: string;
+}

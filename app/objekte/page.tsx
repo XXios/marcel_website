@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import { getContactInfo, getGalleryItems } from "@/lib/data";
+import { getContactInfo, getObjekte } from "@/lib/data";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Gallery from "@/components/Gallery";
+import ObjekteGrid from "@/components/ObjekteGrid";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Galerie | Marcel Vogel \u2013 Maler & Gestalter",
+  title: "Objekte | Marcel Vogel \u2013 Maler & Gestalter",
   description:
-    "Einblicke in die Arbeit: Wandgestaltung, Spachteltechniken und exklusive Oberfl\u00e4chen aus dem Landkreis Bamberg.",
+    "Entdecken Sie abgeschlossene Projekte: Vorher-Nachher-Vergleiche, Spachteltechniken und kreative Raumgestaltung im Landkreis Bamberg.",
 };
 
-export default async function GaleriePage() {
-  const [contact, galleryItems] = await Promise.all([
+export default async function ObjektePage() {
+  const [contact, objekte] = await Promise.all([
     getContactInfo(),
-    getGalleryItems(),
+    getObjekte(),
   ]);
 
   return (
@@ -35,20 +35,20 @@ export default async function GaleriePage() {
             </div>
 
             <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-semibold text-foreground leading-tight">
-              Galerie
+              Objekte
             </h1>
             <div className="w-16 h-0.5 bg-accent mt-4 mb-6" />
             <p className="text-foreground-muted text-lg max-w-2xl leading-relaxed">
-              Einblicke in meine Arbeit {"–"} von klassischen Innenanstrichen bis hin zu
-              exklusiven Spachteltechniken und kreativer Wandgestaltung.
+              Entdecken Sie abgeschlossene Projekte {"\u2013"} von klassischen
+              Renovierungen bis hin zu exklusiven Gestaltungen mit Vorher-Nachher-Vergleichen.
             </p>
           </div>
         </section>
 
-        {/* Gallery grid */}
+        {/* Objekte grid */}
         <section className="pb-20 md:pb-28">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Gallery items={galleryItems} />
+            <ObjekteGrid objekte={objekte} />
           </div>
         </section>
 

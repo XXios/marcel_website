@@ -5,14 +5,20 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import type { ContactInfo } from "@/lib/types";
 
-const navLinks = [
+const sectionLinks = [
   { label: "Leistungen", href: "#leistungen" },
   { label: "Projekte", href: "#portfolio" },
-  { label: "Galerie", href: "/galerie" },
   { label: "\u00dcber mich", href: "#ueber-mich" },
   { label: "Kundenstimmen", href: "#kundenstimmen" },
   { label: "Kontakt", href: "#kontakt" },
 ];
+
+const pageLinks = [
+  { label: "Galerie", href: "/galerie" },
+  { label: "Objekte", href: "/objekte" },
+];
+
+const allNavLinks = [...sectionLinks, ...pageLinks];
 
 function resolveHref(href: string, pathname: string): string {
   // Anchor links: on homepage use as-is, on other pages prefix with /
@@ -83,15 +89,29 @@ export default function Header({ contact }: HeaderProps) {
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-8">
-              {navLinks.map((link) => (
+            <nav className="hidden lg:flex items-center gap-4 ml-6">
+              {sectionLinks.map((link) => (
                 <a
                   key={link.label}
                   href={resolveHref(link.href, pathname)}
-                  className={`text-sm font-medium transition-colors hover:text-accent ${
-                    link.href === "/galerie" && pathname === "/galerie"
+                  className="text-sm font-medium whitespace-nowrap transition-colors hover:text-accent text-foreground-muted"
+                >
+                  {link.label}
+                </a>
+              ))}
+
+              {/* Spacer to push page links right */}
+              <span className="w-px h-5 bg-border mx-1" />
+
+              {pageLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={resolveHref(link.href, pathname)}
+                  className={`text-sm font-medium whitespace-nowrap transition-colors hover:text-accent ${
+                    (link.href === "/galerie" && pathname === "/galerie") ||
+                    (link.href === "/objekte" && pathname.startsWith("/objekte"))
                       ? "text-accent"
-                      : "text-foreground-muted"
+                      : "text-accent/70"
                   }`}
                 >
                   {link.label}
@@ -100,7 +120,7 @@ export default function Header({ contact }: HeaderProps) {
             </nav>
 
             {/* Phone + CTA (Desktop) */}
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4 ml-6">
               <a
                 href={`tel:${contact.phone_raw}`}
                 className="flex items-center gap-2 text-sm font-medium transition-colors text-foreground-muted hover:text-foreground"
@@ -112,7 +132,7 @@ export default function Header({ contact }: HeaderProps) {
               </a>
               <a
                 href={pathname === "/" ? "#kontakt" : "/#kontakt"}
-                className="bg-accent text-primary-dark px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-accent-hover transition-all shadow-sm hover:shadow-md"
+                className="bg-accent text-primary-dark px-5 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap hover:bg-accent-hover transition-all shadow-sm hover:shadow-md"
               >
                 Projekt anfragen
               </a>
@@ -184,13 +204,14 @@ export default function Header({ contact }: HeaderProps) {
 
           {/* Nav links */}
           <nav className="flex-1 flex flex-col items-center justify-center gap-2 px-6">
-            {navLinks.map((link, i) => (
+            {allNavLinks.map((link, i) => (
               <a
                 key={link.label}
                 href={resolveHref(link.href, pathname)}
                 onClick={closeMenu}
                 className={`text-2xl sm:text-3xl font-heading font-semibold py-3 transition-colors ${
-                  link.href === "/galerie" && pathname === "/galerie"
+                  (link.href === "/galerie" && pathname === "/galerie") ||
+                  (link.href === "/objekte" && pathname.startsWith("/objekte"))
                     ? "text-accent"
                     : "text-foreground-muted hover:text-accent"
                 }`}

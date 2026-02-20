@@ -17,11 +17,34 @@ export default function Contact({ contact }: ContactProps) {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formState);
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.");
+        return;
+      }
+
+      setSubmitted(true);
+    } catch {
+      setError("Verbindungsfehler. Bitte pr\u00fcfen Sie Ihre Internetverbindung und versuchen Sie es erneut.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -115,9 +138,32 @@ export default function Contact({ contact }: ContactProps) {
                     placeholder="Beschreiben Sie kurz Ihr Projekt (Raum, Fläche, gewünschte Arbeiten...)"
                   />
                 </div>
-                <Button type="submit" size="lg" className={`w-full sm:w-auto ${contact.on_vacation ? "!bg-red-600 hover:!bg-red-700 !shadow-red-600/20" : ""}`}>
-                  Projekt anfragen
+                <Button
+                  type="submit"
+                  size="lg"
+                  disabled={loading}
+                  className={`w-full sm:w-auto ${contact.on_vacation ? "!bg-red-600 hover:!bg-red-700 !shadow-red-600/20" : ""} ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
+                >
+                  {loading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Wird gesendet...
+                    </span>
+                  ) : (
+                    "Projekt anfragen"
+                  )}
                 </Button>
+                {error && (
+                  <div className="flex items-start gap-3 mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                    <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <p className="text-red-400 text-sm leading-relaxed">{error}</p>
+                  </div>
+                )}
                 {contact.on_vacation && (
                   <div className="flex items-start gap-3 mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
                     <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>

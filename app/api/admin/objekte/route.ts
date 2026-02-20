@@ -1,0 +1,130 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getAdminClient } from "@/lib/supabase";
+
+function unauthorized() {
+  return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
+}
+
+function checkAuth(request: NextRequest): boolean {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader) return false;
+  const password = authHeader.replace("Bearer ", "");
+  return password === process.env.ADMIN_PASSWORD;
+}
+
+export async function GET(request: NextRequest) {
+  if (!checkAuth(request)) return unauthorized();
+
+  const supabase = getAdminClient();
+  const { data, error } = await supabase
+    .from("objekte")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
+export async function POST(request: NextRequest) {
+  if (!checkAuth(request)) return unauthorized();
+
+  try {
+    const body = await request.json();
+    const supabase = getAdminClient();
+
+    const { data, error } = await supabase
+      .from("objekte")
+      .insert({
+        title: body.title,
+        location: body.location || "",
+        description: body.description || "",
+        cover_image_url: body.cover_image_url || "",
+        review_name: body.review_name || null,
+        review_text: body.review_text || null,
+        review_rating: body.review_rating || null,
+        sort_order: body.sort_order ?? 0,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json(data, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "Ung\u00fcltige Anfrage" }, { status: 400 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  if (!checkAuth(request)) return unauthorized();
+
+  try {
+    const body = await request.json();
+    if (!body.id) {
+      return NextResponse.json({ error: "ID fehlt" }, { status: 400 });
+    }
+
+    const supabase = getAdminClient();
+    const updates: Record<string, unknown> = {};
+    const allowedFields = [
+      "title",
+      "location",
+      "description",
+      "cover_image_url",
+      "review_name",
+      "review_text",
+      "review_rating",
+      "sort_order",
+    ];
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        updates[field] = body[field];
+      }
+    }
+
+    const { data, error } = await supabase
+      .from("objekte")
+      .update(updates)
+      .eq("id", body.id)
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json({ error: "Ung\u00fcltige Anfrage" }, { status: 400 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  if (!checkAuth(request)) return unauthorized();
+
+  try {
+    const { id } = await request.json();
+    if (!id) {
+      return NextResponse.json({ error: "ID fehlt" }, { status: 400 });
+    }
+
+    const supabase = getAdminClient();
+    const { error } = await supabase
+      .from("objekte")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Ung\u00fcltige Anfrage" }, { status: 400 });
+  }
+}

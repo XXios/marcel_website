@@ -91,15 +91,14 @@ export default function Portfolio({ projects }: PortfolioProps) {
         </div>
       </div>
 
-      {/* Note */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-        <p className="text-center text-foreground-muted/60 text-sm">
-          Weitere Projekte folgen laufend –{" "}
-          <a href="#kontakt" className="text-accent hover:text-accent-hover transition-colors underline underline-offset-4 decoration-accent/30">
-            sprechen Sie mich an
-          </a>
-          .
-        </p>
+      {/* CTA to Objekte page */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 text-center">
+        <a
+          href="/objekte"
+          className="inline-block bg-accent text-primary-dark px-8 py-3.5 rounded-lg font-semibold hover:bg-accent-hover transition-all shadow-sm hover:shadow-md"
+        >
+          Alle Objekte ansehen
+        </a>
       </div>
     </section>
   );
