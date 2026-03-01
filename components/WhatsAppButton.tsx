@@ -9,9 +9,12 @@ export default function WhatsAppButton({ contact }: WhatsAppButtonProps) {
     "Hallo Herr Vogel, ich interessiere mich für Ihre Malerleistungen. Könnten Sie mir ein Angebot machen?"
   );
 
+  // Normalize: replace leading "0" with German country code "49"
+  const waNumber = contact.whatsapp.replace(/^0/, "49");
+
   return (
     <a
-      href={`https://wa.me/${contact.whatsapp}?text=${message}`}
+      href={`https://wa.me/${waNumber}?text=${message}`}
       target="_blank"
       rel="noopener noreferrer"
       className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 group"

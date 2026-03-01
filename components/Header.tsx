@@ -204,22 +204,30 @@ export default function Header({ contact }: HeaderProps) {
 
           {/* Nav links */}
           <nav className="flex-1 flex flex-col items-center justify-center gap-2 px-6">
-            {allNavLinks.map((link, i) => (
-              <a
-                key={link.label}
-                href={resolveHref(link.href, pathname)}
-                onClick={closeMenu}
-                className={`text-2xl sm:text-3xl font-heading font-semibold py-3 transition-colors ${
-                  (link.href === "/galerie" && pathname === "/galerie") ||
-                  (link.href === "/objekte" && pathname.startsWith("/objekte"))
-                    ? "text-accent"
-                    : "text-foreground-muted hover:text-accent"
-                }`}
-                style={{ transitionDelay: `${(i + 1) * 50}ms` }}
-              >
-                {link.label}
-              </a>
-            ))}
+            {allNavLinks.map((link, i) => {
+              const isPageLink = link.href === "/galerie" || link.href === "/objekte";
+              const isActive =
+                (link.href === "/galerie" && pathname === "/galerie") ||
+                (link.href === "/objekte" && pathname.startsWith("/objekte"));
+
+              return (
+                <a
+                  key={link.label}
+                  href={resolveHref(link.href, pathname)}
+                  onClick={closeMenu}
+                  className={`text-2xl sm:text-3xl font-heading font-semibold py-3 transition-colors ${
+                    isActive
+                      ? "text-accent"
+                      : isPageLink
+                        ? "text-accent/70 hover:text-accent"
+                        : "text-foreground-muted hover:text-accent"
+                  }`}
+                  style={{ transitionDelay: `${(i + 1) * 50}ms` }}
+                >
+                  {link.label}
+                </a>
+              );
+            })}
           </nav>
 
           {/* Bottom: phone + CTA */}
