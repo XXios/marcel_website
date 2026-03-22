@@ -20,6 +20,7 @@ export default function Contact({ contact }: ContactProps) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const phoneRegex = /^[0-9+\s\-/()]+$/;
@@ -65,9 +66,14 @@ export default function Contact({ contact }: ContactProps) {
     }
   }
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    setShowConfirmModal(true);
+  };
+
+  const confirmAndSubmit = async () => {
+    setShowConfirmModal(false);
     setLoading(true);
     setError("");
 
@@ -87,7 +93,7 @@ export default function Contact({ contact }: ContactProps) {
 
       setSubmitted(true);
     } catch {
-      setError("Verbindungsfehler. Bitte pr\u00fcfen Sie Ihre Internetverbindung und versuchen Sie es erneut.");
+      setError("Verbindungsfehler. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.");
     } finally {
       setLoading(false);
     }
@@ -184,7 +190,7 @@ export default function Contact({ contact }: ContactProps) {
                     value={formState.message}
                     onChange={(e) => updateField("message", e.target.value)}
                     className={`w-full px-4 py-3 rounded-lg bg-background border text-foreground placeholder-foreground-muted/40 focus:outline-none focus:ring-1 transition-colors resize-none ${fieldErrors.message ? "border-red-500 focus:border-red-500 focus:ring-red-500" : "border-border focus:border-accent focus:ring-accent"}`}
-                    placeholder="Beschreiben Sie kurz Ihr Projekt (Raum, Fl\u00e4che, gew\u00fcnschte Arbeiten...)"
+                    placeholder="Beschreiben Sie kurz Ihr Projekt (Raum, Fläche, gewünschte Arbeiten...)"
                   />
                   {fieldErrors.message && <p className="text-red-400 text-xs mt-1.5">{fieldErrors.message}</p>}
                 </div>
@@ -315,6 +321,35 @@ export default function Contact({ contact }: ContactProps) {
           </div>
         </div>
       </div>
+
+      {/* Confirmation modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowConfirmModal(false)} />
+          <div className="relative bg-surface border border-border rounded-2xl p-8 max-w-sm w-full shadow-2xl">
+            <h3 className="text-lg font-heading font-semibold text-foreground mb-3">
+              Hinweis
+            </h3>
+            <p className="text-foreground-muted leading-relaxed mb-6">
+              Das Unternehmen existiert erst ab Januar 2027. Trotzdem senden?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 px-4 py-2.5 rounded-lg border border-border text-foreground-muted hover:text-foreground hover:border-foreground/30 transition-colors text-sm font-medium"
+              >
+                Abbrechen
+              </button>
+              <button
+                onClick={confirmAndSubmit}
+                className="flex-1 px-4 py-2.5 rounded-lg bg-accent text-background hover:bg-accent/90 transition-colors text-sm font-medium"
+              >
+                Ja, senden
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

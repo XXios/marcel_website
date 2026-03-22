@@ -1476,7 +1476,7 @@ function ObjekteTab({ password }: { password: string }) {
             type="text"
             value={editingImage.after_image_url || ""}
             onChange={(e) => setEditingImage({ ...editingImage, after_image_url: e.target.value || null })}
-            placeholder="Nachher-Bild URL (leer lassen f\u00fcr einzelnes Bild)"
+            placeholder="Nachher-Bild URL (leer lassen für einzelnes Bild)"
             className={inputClasses}
           />
         </div>
@@ -1564,7 +1564,7 @@ function ObjekteTab({ password }: { password: string }) {
               value={editing.description}
               onChange={(e) => setEditing({ ...editing, description: e.target.value })}
               className={inputClasses}
-              placeholder="Projektbeschreibung f\u00fcr den Kunden"
+              placeholder="Projektbeschreibung für den Kunden"
             />
           </div>
 
